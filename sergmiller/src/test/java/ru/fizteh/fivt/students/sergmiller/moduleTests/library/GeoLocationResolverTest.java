@@ -54,6 +54,6 @@ public class GeoLocationResolverTest extends TestCase {
         PowerMockito.when(dummyURL.openStream()).thenReturn(inputStream);
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
         String location = geoLocationResolver.getNameOfCurrentLocation();
-        assertEquals(location, DOLGOPRUDNYY);
+        assertEquals(DOLGOPRUDNYY, location);
     }
 }
