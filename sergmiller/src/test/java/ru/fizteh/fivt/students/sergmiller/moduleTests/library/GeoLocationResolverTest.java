@@ -31,15 +31,15 @@ public class GeoLocationResolverTest extends TestCase {
     static final String URLAdress = "http://ipinfo.io/json";
     static final String DOLGOPRUDNYY = "Dolgoprudnyy";
     String resultLocationFromMyIPInDolgoprudnyy = "{"
-            + "\"country\":\"RU\","
-            + "\"loc\":\"55.9041,37.5606\","
-            + "\"hostname\":\"No Hostname\","
-            + "\"city\":\"Dolgoprudnyy\","
-            + "\"org\":\"AS5467 Non state educational institution Educational Scientific and Experimental Center"
+            + "\"country\": \"RU\","
+            + "\"loc\": \"55.9041,37.5606\","
+            + "\"hostname\": \"No Hostname\","
+            + "\"city\": \"Dolgoprudnyy\","
+            + "\"org\": \"AS5467 Non state educational institution Educational Scientific and Experimental Center"
             + " of Moscow Institute of Physics and Technology\","
-            + "\"ip\":\"93.175.2.82\","
-            + "\"postal\":\"141700\","
-            + "\"region\":\"Moscow Oblast\"}";
+            + "\"ip\": \"93.175.2.82\","
+            + "\"postal\": \"141700\","
+            + "\"region\": \"Moscow Oblast\"}";
 
     @Before
     public void preparationForTest() throws Exception {
