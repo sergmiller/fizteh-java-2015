@@ -1,8 +1,5 @@
 /**
- * one more codestyle comment...
+ * Created by sergmiller on 02.10.15.
  */
 package ru.fizteh.fivt.students.sergmiller.reverser;
-/**
- * Created by sergmiller on 13.09.15.
- */
 

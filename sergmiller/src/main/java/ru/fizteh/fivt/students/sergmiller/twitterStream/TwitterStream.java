@@ -11,9 +11,6 @@ import java.util.*;
 import java.io.IOException;
 import java.util.List;
 
-import javafx.util.Pair;
-
-
 /**
  * Created by sergmiller on 15.09.15.
  */
@@ -46,7 +43,7 @@ final class TwitterStream {
     public static void printTwitterStream(
             final JCommanderParser jCommanderParsed) {
         String curLocationRequest = "";
-        Pair<GeoLocation, Double> geoParams = new Pair(new GeoLocation(0, 0), new Double(0));
+        LocationData locationData = new LocationData(new GeoLocation(0, 0), new Double(0));
         try {
             if (!jCommanderParsed.getLocation().equals("")) {
                 if (jCommanderParsed.getLocation().equals(NEARBY)) {
@@ -54,7 +51,7 @@ final class TwitterStream {
                 } else {
                     curLocationRequest = jCommanderParsed.getLocation();
                 }
-                geoParams = GeoLocationResolver
+                locationData = GeoLocationResolver
                         .getGeoLocation(curLocationRequest);
             }
         } catch (IOException | JSONException | GettingMyLocationException e) {
@@ -70,9 +67,9 @@ final class TwitterStream {
         //   Location curLocation = getCurLocation(twStream, jCommanderParsed);
         //  Query query = new
 
-        final double locationLatitude = geoParams.getKey().getLatitude();
-        final double locationLongitude = geoParams.getKey().getLongitude();
-        final double locationRadius = geoParams.getValue();
+        final double locationLatitude = locationData.getGeoLocation().getLatitude();
+        final double locationLongitude = locationData.getGeoLocation().getLongitude();
+        final double locationRadius = locationData.getRadius();
         StatusListener listener = new StatusAdapter() {
             @Override
             public void onStatus(final Status status) {
@@ -158,20 +155,20 @@ final class TwitterStream {
                         } else {
                             curLocationRequest = jCommanderParsed.getLocation();
                         }
-                        Pair<GeoLocation, Double> geoParams = GeoLocationResolver
+                        LocationData locationData = GeoLocationResolver
                                 .getGeoLocation(curLocationRequest);
-                        query.geoCode(geoParams.getKey(), geoParams.getValue(), RADIUS_UNIT);
+                        query.geoCode(locationData.getGeoLocation(), locationData.getRadius(), RADIUS_UNIT);
                         /*System.out.println("Location is " + curLocationRequest
                                 + ", latitude :"
-                                + geoParams.getKey().getLatitude()
+                                + locationData.getKey().getLatitude()
                                 + " longitude :"
-                                + geoParams.getKey().getLongitude()
+                                + locationData.getKey().getLongitude()
                                 + ", radius(km): "
-                                + geoParams.getValue()
+                                + locationData.getValue()
                                 + TweetPrinter.tweetsSeparator());*/
                     }
                 } catch (IOException | JSONException | GettingMyLocationException e) {
-                    e.getMessage();
+//                    e.getMessage();
                     System.err.println("Не могу определить регион=(\n" + "Поиск по World:");
                     curLocationRequest = "World";
                 }
@@ -276,8 +273,9 @@ final class TwitterStream {
                     && jCommanderParsed.getQuery().size() == 0)) {
                 throw new ParameterException("");
             }
-        } catch (ParameterException pe) {
-            JCommander jCommanderHelper = new JCommander(jCommanderParsed, new String[]{"-q", ""});
+        } catch (ParameterException | ClassCastException e) {
+            JCommanderParser jCommanderDefault = new JCommanderParser();
+            JCommander jCommanderHelper = new JCommander(jCommanderDefault, new String[]{""});
             jCommanderHelper.setProgramName("TwitterStream");
             printHelpMan(jCommanderHelper);
             return;
@@ -305,6 +303,8 @@ final class TwitterStream {
         } else {
             printTwitterLimited(jCommanderParsed);
         }
+
+
         //System.out.println(LocalTime.now() + " " + LocalTime.now().toSecondOfDay());
     }
 }

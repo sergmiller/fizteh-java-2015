@@ -13,8 +13,6 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
-
 
 /**
  * Created by sergmiller on 29.09.15.
@@ -22,11 +20,11 @@ import javafx.util.Pair;
 //Used http://habrahabr.ru/post/148986/
 
 
-final class GeoLocationResolver {
+public class GeoLocationResolver {
     public static final int MAX_QUANTITY_OF_TRIES = 2;
     static final double EARTH_RADIUS = 6371;
 
-    public static Pair<GeoLocation, Double> getGeoLocation(final String geoRequest)
+    public static LocationData getGeoLocation(final String geoRequest)
             throws IOException, JSONException {
         final String baseUrl = "http://maps.googleapis.com/maps/api/geocode/json";
         final Map<String, String> params = Maps.newHashMap();
@@ -56,7 +54,7 @@ final class GeoLocationResolver {
                 southWestBoundLatitude, southWestBoundLongitude
         );
         approximatedRadius /= 2;
-        return new Pair((new GeoLocation(latitude, longitude)), new Double(approximatedRadius));
+        return new LocationData((new GeoLocation(latitude, longitude)), new Double(approximatedRadius));
     }
 
     public static String readAll(final Reader rd) throws IOException {
@@ -128,6 +126,10 @@ final class GeoLocationResolver {
 
                 JSONObject locationInfo =
                         new JSONObject(responseBuilder.toString());
+
+                /*System.out.print("************************************\n"
+                + locationInfo.toString()
+                + "\n************************************\n");*/
 
                 return locationInfo.getString("city");
             } catch (IOException | JSONException e) {

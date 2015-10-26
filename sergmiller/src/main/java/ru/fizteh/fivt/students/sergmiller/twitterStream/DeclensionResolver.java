@@ -1,5 +1,4 @@
 package ru.fizteh.fivt.students.sergmiller.twitterStream;
-
 /**
  * Created by sergmiller on 06.10.15.
  */
@@ -8,9 +7,7 @@ public class DeclensionResolver {
     public static final int MOD10 = 10;
     public static final int LEFT_BOUND_MOD_100 = 10;
     public static final int RIGHT_BOUND_MOD_100 = 20;
-
     public static final int ONE = 1;
-    public static final int TWO = 2;
     public static final int FIVE = 5;
     private static String[] retweetForms = {"ретвит", "ретвитов", "ретвита"};
     private static String[] minuteForms = {"минуту", "минут", "минуты"};
@@ -59,7 +56,6 @@ public class DeclensionResolver {
                 && count % MOD100 <= RIGHT_BOUND_MOD_100) {
             return getForm(word, 1);
         }
-
         long countMod10 = count % MOD10;
         if (countMod10 == ONE) {
             return getForm(word, 0);
