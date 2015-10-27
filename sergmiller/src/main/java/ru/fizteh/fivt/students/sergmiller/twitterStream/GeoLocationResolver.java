@@ -130,9 +130,9 @@ public class GeoLocationResolver {
                 JSONObject locationInfo =
                         new JSONObject(responseBuilder.toString());
 
-//                System.out.print("************************************\n"
-//                + locationInfo.toString()
-//                + "\n************************************\n");
+                System.out.print("************************************\n"
+                + locationInfo.toString()
+                + "\n************************************\n");
 
                 return locationInfo.getString("city");
             } catch (IOException | JSONException e) {
