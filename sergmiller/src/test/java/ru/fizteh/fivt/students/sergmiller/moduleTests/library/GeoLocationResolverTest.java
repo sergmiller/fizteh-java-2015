@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
+import com.oracle.tools.packager.IOUtils;
 import junit.framework.TestCase;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,14 +17,17 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.GeoLocationResolver;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.LocationData;
 //import twitter4j.GeoLocation;
+
 import twitter4j.TwitterStream;
 //import static ru.fizteh.fivt.students.sergmiller.twitterStream.GeoLocationResolver.getNameOfCurrentLocation;
 
 //import twitter4j.GeoLocation;
 
 //import java.io.ByteArrayInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 //import java.nio.charset.StandardCharsets;
 
 
@@ -35,13 +40,15 @@ import java.net.URL;
 public class GeoLocationResolverTest extends TestCase {
     private URL dummyGeoDataURL;
     private URL dummyMyLocationURL;
-    static final String URLIPinfoAdress = "http://ipinfo.io/json";
-    //static final String URLGoogleAPIAdress = "http://maps.googleapis.com/maps/api/geocode/json";
-    static final String DOLGOPRUDNYY = "Dolgoprudnyy";
-    static final String LONDON = "Moscow";
-    static final Double LondonLatitude = 51.5073509;
-    static final Double LondonLongitude = -0.1277583;
-    static final Double LondonRadius = 23.539304731202712;
+    private final String URLIPinfoAdress = "http://ipinfo.io/json";
+    private final String URLGoogleAPIAdress = "http://maps.googleapis.com/maps/api/geocode/json";
+    private final String DOLGOPRUDNYY = "Dolgoprudnyy";
+    private final String LONDON = "Moscow";
+    private final Double LondonLatitude = 51.5073509;
+    private final Double LondonLongitude = -0.1277583;
+    private final Double LondonRadius = 23.539304731202712;
+    private static String DolgoprudnyyIPResponce;
+    private static String LondonGeoLocationResponce;
 
     @Before
     public void preparationForTest() throws Exception {
@@ -55,8 +62,7 @@ public class GeoLocationResolverTest extends TestCase {
 
     @Test
     public void testGetNameOfCurrentLocation() throws Exception {
-        InputStream inputStream =
-                TwitterStream.class.getResourceAsStream("/DolgoprudnyyIPinfo.json");
+        InputStream inputStream = TwitterStream.class.getResourceAsStream("/DolgoprudnyyIPinfo.json");
         PowerMockito.when(dummyMyLocationURL.openStream()).thenReturn(inputStream);
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
         String location = geoLocationResolver.getNameOfCurrentLocation();
