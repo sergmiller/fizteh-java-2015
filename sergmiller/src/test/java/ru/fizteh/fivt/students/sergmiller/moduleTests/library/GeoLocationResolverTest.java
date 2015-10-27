@@ -4,12 +4,16 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
+//import org.powermock.modules.junit4.PowerMockRunner;
+//
+//import org.powermock.api.mockito.PowerMockito;
+//import org.powermock.core.classloader.annotations.PrepareForTest;
+//import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.GeoLocationResolver;
-//import ru.fizteh.fivt.students.sergmiller.twitterStream.exceptions.GettingMyLocationException;
+//import static ru.fizteh.fivt.students.sergmiller.twitterStream.GeoLocationResolver.getNameOfCurrentLocation;
 
 //import twitter4j.GeoLocation;
 
@@ -24,7 +28,7 @@ import java.nio.charset.StandardCharsets;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({URL.class})
+@PrepareForTest({URL.class, GeoLocationResolver.class})
 public class GeoLocationResolverTest extends TestCase {
     //private URL GeoIPUrl;
     private URL dummyURL;
