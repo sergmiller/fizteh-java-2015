@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
-import com.oracle.tools.packager.IOUtils;
 import junit.framework.TestCase;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +13,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.GeoLocationResolver;
-import ru.fizteh.fivt.students.sergmiller.twitterStream.LocationData;
+//import ru.fizteh.fivt.students.sergmiller.twitterStream.LocationData;
 //import twitter4j.GeoLocation;
 
 import twitter4j.TwitterStream;
@@ -24,10 +22,8 @@ import twitter4j.TwitterStream;
 //import twitter4j.GeoLocation;
 
 //import java.io.ByteArrayInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 //import java.nio.charset.StandardCharsets;
 
 
