@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
+//package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import ru.fizteh.fivt.students.sergmiller.twitterStream.DeclensionResolver;
 
 public class DeclensionResolverTest extends TestCase {
     @Test
-    public void testGetDeclensionFormRetweets() throws Exception{
+    public void testGetDeclensionFormRetweets() throws Exception {
         DeclensionResolver declensionResolver = new DeclensionResolver();
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.RETWEET, 1), "ретвит");
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.RETWEET, 2), "ретвита");
@@ -23,8 +23,9 @@ public class DeclensionResolverTest extends TestCase {
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.RETWEET, 22), "ретвита");
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.RETWEET, 104), "ретвита");
     }
+
     @Test
-    public void testGetDeclensionFormMinutes() throws Exception{
+    public void testGetDeclensionFormMinutes() throws Exception {
         DeclensionResolver declensionResolver = new DeclensionResolver();
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.MINUTE, 1), "минуту");
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.MINUTE, 2), "минуты");
@@ -35,8 +36,9 @@ public class DeclensionResolverTest extends TestCase {
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.MINUTE, 22), "минуты");
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.MINUTE, 104), "минуты");
     }
+
     @Test
-    public void testGetDeclensionFormHours() throws Exception{
+    public void testGetDeclensionFormHours() throws Exception {
         DeclensionResolver declensionResolver = new DeclensionResolver();
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.HOUR, 1), "час");
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.HOUR, 2), "часа");
@@ -47,8 +49,9 @@ public class DeclensionResolverTest extends TestCase {
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.HOUR, 22), "часа");
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.HOUR, 104), "часа");
     }
+
     @Test
-    public void testGetDeclensionFormDays() throws Exception{
+    public void testGetDeclensionFormDays() throws Exception {
         DeclensionResolver declensionResolver = new DeclensionResolver();
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.DAY, 1), "день");
         assertEquals(declensionResolver.getDeclensionForm(DeclensionResolver.Word.DAY, 2), "дня");

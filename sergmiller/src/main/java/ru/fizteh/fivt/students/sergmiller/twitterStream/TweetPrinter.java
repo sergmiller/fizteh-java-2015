@@ -38,6 +38,10 @@ public class TweetPrinter {
      */
     public static void printTweet(final Status status,
                                   final JCommanderParser jCommanderParsed) {
+//        System.out.print("******************TWEET_DATA******************\n"
+//                + status.toString()
+//                + "\n**************TWEET_DATA**********************\n");
+
         StringBuilder statusLine = new StringBuilder();
         if (!jCommanderParsed.isStream()) {
             statusLine.append("[" + TimeResolver.getTime(status.getCreatedAt().toInstant()

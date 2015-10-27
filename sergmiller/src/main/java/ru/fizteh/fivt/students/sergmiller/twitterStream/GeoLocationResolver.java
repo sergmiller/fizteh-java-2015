@@ -32,6 +32,9 @@ public class GeoLocationResolver {
         params.put("address", geoRequest);
         final String url = baseUrl + '?' + encodeParams(params);
         final JSONObject response = GeoLocationResolver.read(url);
+//                System.out.print("****************GOOGLE_API_DATA********************\n"
+//                + response.toString()
+//                + "\n*****************GOOGLE_API_DATA*******************\n");
         double northEastBoundLongitude, northEastBoundLatitude;
         double southWestBoundLongitude, southWestBoundLatitude;
         double latitude, longitude;

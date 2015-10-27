@@ -4,7 +4,7 @@ import twitter4j.GeoLocation;
 /**
  * Created by sergmiller on 26.10.15.
  */
-final class LocationData {
+public class LocationData {
     private final GeoLocation geoLocation;
     private final Double radius;
     LocationData(final GeoLocation newGeoLocation, final Double newRadius) {

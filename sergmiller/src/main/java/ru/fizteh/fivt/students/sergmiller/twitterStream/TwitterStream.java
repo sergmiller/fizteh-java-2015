@@ -158,14 +158,14 @@ final class TwitterStream {
                         LocationData locationData = GeoLocationResolver
                                 .getGeoLocation(curLocationRequest);
                         query.geoCode(locationData.getGeoLocation(), locationData.getRadius(), RADIUS_UNIT);
-                        /*System.out.println("Location is " + curLocationRequest
-                                + ", latitude :"
-                                + locationData.getKey().getLatitude()
-                                + " longitude :"
-                                + locationData.getKey().getLongitude()
-                                + ", radius(km): "
-                                + locationData.getValue()
-                                + TweetPrinter.tweetsSeparator());*/
+//                        System.out.println("Location is " + curLocationRequest
+//                                + ", latitude :"
+//                                + locationData.getGeoLocation().getLatitude()
+//                                + " longitude :"
+//                                + locationData.getGeoLocation().getLongitude()
+//                                + ", radius(km): "
+//                                + locationData.getRadius()
+//                                + TweetPrinter.tweetsSeparator());
                     }
                 } catch (IOException | JSONException | GettingMyLocationException e) {
 //                    e.getMessage();
