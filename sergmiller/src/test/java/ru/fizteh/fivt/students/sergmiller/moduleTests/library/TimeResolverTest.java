@@ -7,35 +7,32 @@ import ru.fizteh.fivt.students.sergmiller.twitterStream.TimeResolver;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
- * Created by alex on 08.11.15.
+ * Created by sergmiller on 19.10.15.
  */
+
 public class TimeResolverTest extends TestCase {
-    private Date[] dates;
-    private LocalDateTime[] localDateTime;
+    private List<LocalDateTime> testedDates = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
-        dates = new Date[6];
-        localDateTime = new LocalDateTime[6];
-        dates[0] = new Date(2014, 9, 12, 10, 30, 10);
-        dates[1] = new Date(2014, 9, 12, 10, 29, 10);
-        dates[2] = new Date(2014, 9, 12, 10, 20, 10);
-        dates[3] = new Date(2014, 9, 12, 8, 20, 10);
-        dates[4] = new Date(2014, 9, 11, 23, 20, 10);
-        dates[5] = new Date(2014, 9, 1, 23, 20, 10);
-        for (int i = 0; i < dates.length; ++i) {
-            localDateTime[i] = dates[i].toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        }
+        testedDates.add(LocalDateTime.of(2014, 9, 12, 10, 30, 10));
+        testedDates.add(LocalDateTime.of(2014, 9, 12, 10, 29, 10));
+        testedDates.add(LocalDateTime.of(2014, 9, 12, 10, 20, 10));
+        testedDates.add(LocalDateTime.of(2014, 9, 12, 8, 20, 10));
+        testedDates.add(LocalDateTime.of(2014, 9, 11, 23, 20, 10));
+        testedDates.add(LocalDateTime.of(2014, 9, 1, 23, 20, 10));
     }
 
     @Test
     public void testDeterminerDifference() throws Exception {
         String[] results = new String[5];
-        for (int i = 0; i < dates.length - 1; ++i) {
-            results[i] = TimeResolver.getTime(localDateTime[i + 1], localDateTime[i]);
+        for (int i = 0; i < testedDates.size() - 1; ++i) {
+            results[i] = TimeResolver.getTime(testedDates.get(i+1), testedDates.get(i));
         }
 
         assertEquals(results[0], "Только что");
