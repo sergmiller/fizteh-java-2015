@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
+//package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
 import junit.framework.TestCase;
 import org.junit.Test;

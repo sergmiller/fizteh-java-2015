@@ -15,8 +15,7 @@ public class TimeResolver {
      * @param createdTime is time of create status
      * @return new string with special format
      */
-    public static String getTime(LocalDateTime createdTime) {
-        LocalDateTime currentTime = LocalDateTime.now();
+    public static String getTime(LocalDateTime createdTime, LocalDateTime currentTime) {
         long minutes;
         long hours;
         long days;
@@ -30,17 +29,20 @@ public class TimeResolver {
                     DeclensionResolver.Word.MINUTE, minutes) + " назад";
         }
 
-        if (ChronoUnit.DAYS.between(createdTime, currentTime) < 1) {
+        if (ChronoUnit.DAYS.between(createdTime.toLocalDate().atStartOfDay(),
+                currentTime.toLocalDate().atStartOfDay()) < 1) {
             hours = ChronoUnit.HOURS.between(createdTime, currentTime);
             return hours + " " + DeclensionResolver.getDeclensionForm(
                     DeclensionResolver.Word.HOUR, hours) + " назад";
         }
 
-        if (ChronoUnit.DAYS.between(createdTime, currentTime) == 1) {
+        if (ChronoUnit.DAYS.between(createdTime.toLocalDate().atStartOfDay(),
+                currentTime.toLocalDate().atStartOfDay()) == 1) {
             return "Вчера";
         }
 
-        days = ChronoUnit.DAYS.between(createdTime, currentTime);
+        days = ChronoUnit.DAYS.between(createdTime.toLocalDate().atStartOfDay(),
+                currentTime.toLocalDate().atStartOfDay());
         return days + " " + DeclensionResolver.getDeclensionForm(
                 DeclensionResolver.Word.DAY, days) + " назад";
     }

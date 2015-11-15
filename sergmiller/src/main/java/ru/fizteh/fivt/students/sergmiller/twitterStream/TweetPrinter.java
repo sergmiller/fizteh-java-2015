@@ -1,76 +1,25 @@
 package ru.fizteh.fivt.students.sergmiller.twitterStream;
 
-import twitter4j.Status;
-
-import java.time.ZoneId;
+import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Created by sergmiller on 06.10.15.
  */
 public class TweetPrinter {
-    public static final int SEPARATOR_LENGTH = 80;
-    /**
-     * Get blue letter.
-     */
-    static final String ANSI_RESET = "\u001B[0m";
-    /**
-     * Return white color of word.
-     */
-    static final String ANSI_BLUE = "\u001B[34m";
+    private PrintStream out;
 
-    public static String highlightUserName(final String userName) {
-        return "@" + ANSI_BLUE + userName + ANSI_RESET + ": ";
+    public TweetPrinter(final PrintStream stream) {
+        out = stream;
     }
 
-    public static String tweetsSeparator() {
-        StringBuilder separator = new StringBuilder("\n");
-        for (int i = 0; i < SEPARATOR_LENGTH; ++i) {
-            separator.append("-");
-        }
-        return separator.toString();
+    public void print(String tweet) {
+        out.println(tweet);
     }
 
-    /**
-     * Print current tweet.
-     *
-     * @param status           is info about tweet
-     * @param jCommanderParsed is JC params
-     */
-    public static void printTweet(final Status status,
-                                  final JCommanderParser jCommanderParsed) {
-//        System.out.print("******************TWEET_DATA******************\n"
-//                + status.toString()
-//                + "\n**************TWEET_DATA**********************\n");
-
-        StringBuilder statusLine = new StringBuilder();
-        if (!jCommanderParsed.isStream()) {
-            statusLine.append("[" + TimeResolver.getTime(status.getCreatedAt().toInstant()
-                    .atZone(ZoneId.systemDefault()).toLocalDateTime()) + "] ");
+    public void printTweets(List<String> tweets) {
+        if (!tweets.isEmpty()) {
+            tweets.stream().forEach(this::print);
         }
-
-        statusLine.append(
-                highlightUserName(status.getUser().getScreenName()));
-        if (!status.isRetweet()) {
-            statusLine.append(
-                    status.getText()
-                            + " ("
-                            + status.getRetweetCount()
-                            + " "
-                            + DeclensionResolver.getDeclensionForm(
-                            DeclensionResolver.Word.RETWEET, status.getRetweetCount())
-                            + ")"
-            );
-        } else {
-            statusLine.append("ретвитнул ");
-            String[] parsedText = status.getText().split(" ");
-
-            statusLine.append(
-                    highlightUserName(parsedText[1].split("@|:")[1]));
-
-            for (int i = 2; i < parsedText.length; ++i) {
-                statusLine.append(" " + parsedText[i]);
-            }
-        }
-        System.out.println(statusLine.toString() + tweetsSeparator());
     }
 }

@@ -9,7 +9,7 @@ import com.beust.jcommander.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-class JCommanderParser {
+public class JCommanderParser {
     @Parameter
     public static final int DEFAULT_TWEETS_LIMIT = 100;
 

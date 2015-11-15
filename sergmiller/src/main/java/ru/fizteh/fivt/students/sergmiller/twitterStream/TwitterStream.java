@@ -7,6 +7,8 @@ import twitter4j.*;
 import twitter4j.StatusListener;
 import com.beust.jcommander.JCommander;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.*;
 import java.io.IOException;
 import java.util.List;
@@ -14,16 +16,13 @@ import java.util.List;
 /**
  * Created by sergmiller on 15.09.15.
  */
-final class TwitterStream {
+public final class TwitterStream {
     /**
      * Javadoc comment.
      */
-    private TwitterStream() {
+    public TwitterStream() {
     }
 
-    /**
-     * mods and ranges for getting correct declension form.
-     */
     public static final int MILISECONDS_IN_SECONDS = 1000;
 
     public static final int MAX_QUANTITY_OF_TRIES = 2;
@@ -31,40 +30,41 @@ final class TwitterStream {
 
 /*
     public static  Location getCurLocation(twitter4j.TwitterStream twStream,
-     JCommanderParser jCommanderParsed) {
+     JCommanderParser jCommanderParser) {
         Place curPlace =
     }*/
 
     /**
      * Stream mod.
      *
-     * @param jCommanderParsed is class with query's info
+     * @param jCommanderParser is class with query's info
      */
-    public static void printTwitterStream(
-            final JCommanderParser jCommanderParsed) {
+    public void printTwitterStream(
+            final JCommanderParser jCommanderParser) {
         String curLocationRequest = "";
-        LocationData locationData = new LocationData(new GeoLocation(0, 0), new Double(0));
+        LocationData locationData = new LocationData(null, null, null);
         try {
-            if (!jCommanderParsed.getLocation().equals("")) {
-                if (jCommanderParsed.getLocation().equals(NEARBY)) {
-                    curLocationRequest = GeoLocationResolver.getNameOfCurrentLocation();
+            GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
+            if (!jCommanderParser.getLocation().equals("")) {
+                if (jCommanderParser.getLocation().equals(NEARBY)) {
+                    curLocationRequest = geoLocationResolver.getNameOfCurrentLocation();
                 } else {
-                    curLocationRequest = jCommanderParsed.getLocation();
+                    curLocationRequest = jCommanderParser.getLocation();
                 }
-                locationData = GeoLocationResolver
+                locationData = geoLocationResolver
                         .getGeoLocation(curLocationRequest);
             }
         } catch (IOException | JSONException | GettingMyLocationException e) {
             e.getMessage();
             System.err.println("Не могу определить регион=(\n" + "Поиск по World:");
-            curLocationRequest = "World";
+            //  curLocationRequest = "World";
         }
 
 
         twitter4j.TwitterStream twStream = twitter4j
                 .TwitterStreamFactory.getSingleton();
 
-        //   Location curLocation = getCurLocation(twStream, jCommanderParsed);
+        //   Location curLocation = getCurLocation(twStream, jCommanderParser);
         //  Query query = new
 
         final double locationLatitude = locationData.getGeoLocation().getLatitude();
@@ -73,11 +73,11 @@ final class TwitterStream {
         StatusListener listener = new StatusAdapter() {
             @Override
             public void onStatus(final Status status) {
-                if (jCommanderParsed.isHideRetweets() && status.isRetweet()) {
+                if (jCommanderParser.isHideRetweets() && status.isRetweet()) {
                     return;
                 }
 
-                if (!jCommanderParsed.getLocation().equals("")) {
+                if (!jCommanderParser.getLocation().equals("")) {
                     final double curTweetLatitude;
                     final double curTweetLongitude;
                     if (status.getGeoLocation() != null) {
@@ -107,7 +107,8 @@ final class TwitterStream {
                     }
                 }
 
-                TweetPrinter.printTweet(status, jCommanderParsed);
+                System.out.print(TweetFormater.formatTweet(status, jCommanderParser));
+
                 try {
                     Thread.sleep(MILISECONDS_IN_SECONDS);
                 } catch (InterruptedException e) {
@@ -115,11 +116,11 @@ final class TwitterStream {
                 }
             }
         };
-        String[] queries = jCommanderParsed
+        String[] queries = jCommanderParser
                 .getQuery().toArray(
-                        new String[jCommanderParsed.getQuery().size()]);
+                        new String[jCommanderParser.getQuery().size()]);
         twStream.addListener(listener);
-        if (jCommanderParsed.getQuery().size() != 0) {
+        if (jCommanderParser.getQuery().size() != 0) {
             twStream.filter(new FilterQuery().track(queries));
         } else {
             twStream.sample();
@@ -132,32 +133,24 @@ final class TwitterStream {
     /**
      * Mod with print limited quantity of text.
      *
-     * @param jCommanderParsed is class with query's info
+     * @param jCommanderParser is class with query's info
      * @throws TwitterException is kind of exception
      */
-    public static void printTwitterLimited(
-            final JCommanderParser jCommanderParsed) {
+    public List<String> getTwitterLimited(
+            final JCommanderParser jCommanderParser, final LocationData currentlocation, Twitter twitter) {
         int currentQuantityOfTries = 0;
+        List<String> allTweets = new ArrayList<>();
         while (currentQuantityOfTries < MAX_QUANTITY_OF_TRIES) {
             try {
-                Twitter twitter = TwitterFactory.getSingleton();
-
                 String joinedQuery = "";
-                if (!jCommanderParsed.getQuery().isEmpty()) {
-                    joinedQuery = String.join(" ", jCommanderParsed.getQuery());
+                if (!jCommanderParser.getQuery().isEmpty()) {
+                    joinedQuery = String.join(" ", jCommanderParser.getQuery());
                 }
                 Query query = new Query(joinedQuery);
-                String curLocationRequest = "";
-                try {
-                    if (!jCommanderParsed.getLocation().equals("")) {
-                        if (jCommanderParsed.getLocation().equals(NEARBY)) {
-                            curLocationRequest = GeoLocationResolver.getNameOfCurrentLocation();
-                        } else {
-                            curLocationRequest = jCommanderParsed.getLocation();
-                        }
-                        LocationData locationData = GeoLocationResolver
-                                .getGeoLocation(curLocationRequest);
-                        query.geoCode(locationData.getGeoLocation(), locationData.getRadius(), RADIUS_UNIT);
+
+                GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
+                if (currentlocation != null) {
+                    query.geoCode(currentlocation.getGeoLocation(), currentlocation.getRadius(), RADIUS_UNIT);
 //                        System.out.println("Location is " + curLocationRequest
 //                                + ", latitude :"
 //                                + locationData.getGeoLocation().getLatitude()
@@ -166,31 +159,34 @@ final class TwitterStream {
 //                                + ", radius(km): "
 //                                + locationData.getRadius()
 //                                + TweetPrinter.tweetsSeparator());
-                    }
-                } catch (IOException | JSONException | GettingMyLocationException e) {
-//                    e.getMessage();
-                    System.err.println("Не могу определить регион=(\n" + "Поиск по World:");
-                    curLocationRequest = "World";
                 }
 
-                query.setCount(jCommanderParsed.getLimit());
+
+                query.setCount(jCommanderParser.getLimit());
 
                 QueryResult request;
                 int quantityOfPrintedTweets = 0;
                 Boolean flagLimit = false;
-                List<Status> allTweets = new ArrayList<>();
 
                 do {
                     request = twitter.search(query);
 
                     List<Status> tweets = request.getTweets();
 
+//                    System.out.print("************tweets***************\n");
+//                    for (int i = 0;i < tweets.size();++i) {
+//                    System.out.println(tweets.get(i));
+//                     }
+
+//                  write("/Users/sergmiller/Documents/javaproj/JavaGit/fizteh-java-2015/sergmiller"
+//                            + "/DoctorWhoInLondonTweets.json", new JSONObject(request).toString());
+
                     for (Status status : tweets) {
-                        if (!jCommanderParsed.isHideRetweets()
+                        if (!jCommanderParser.isHideRetweets()
                                 || !status.isRetweet()) {
-                            allTweets.add(status);
+                            allTweets.add(TweetFormater.formatTweet(status, jCommanderParser));
                             ++quantityOfPrintedTweets;
-                            if (quantityOfPrintedTweets == jCommanderParsed.getLimit()) {
+                            if (quantityOfPrintedTweets == jCommanderParser.getLimit()) {
                                 flagLimit = true;
                                 break;
                             }
@@ -202,9 +198,9 @@ final class TwitterStream {
                 if (allTweets.isEmpty()) {
                     System.err.println("\nПо запросу "
                                     + String.join(", "
-                                    , jCommanderParsed.getQuery())
+                                    + jCommanderParser.getQuery())
                                     + " для "
-                                    + curLocationRequest
+                                    + currentlocation.getName()
                                     + " ничего не найдено=(\n\n"
                                     + "Рекомендации:\n\n"
                                     + "Убедитесь, что все слова"
@@ -216,11 +212,6 @@ final class TwitterStream {
                     );
                 } else {
                     Collections.reverse(allTweets);
-
-                    for (Status status : allTweets) {
-                        TweetPrinter.printTweet(status, jCommanderParsed);
-                    }
-
                 }
 
                 currentQuantityOfTries = MAX_QUANTITY_OF_TRIES;
@@ -229,11 +220,11 @@ final class TwitterStream {
                 if (currentQuantityOfTries == MAX_QUANTITY_OF_TRIES) {
                     System.err.println(twExp.getMessage()
                             + "\nЧто-то пошло не так=(\n"
-                            + "Проверьте наличие соединия.");
-                    return;
+                            + "Проверьте наличие соединения.");
                 }
             }
         }
+        return allTweets;
     }
 
     /**
@@ -264,13 +255,13 @@ final class TwitterStream {
      * @throws TwitterException some exception
      */
     public static void main(final String[] args) {
-        JCommanderParser jCommanderParsed = new JCommanderParser();
+        JCommanderParser jCommanderParser = new JCommanderParser();
 
         try {
-            JCommander jCommanderSettings = new JCommander(jCommanderParsed, args);
-            if (jCommanderParsed.isHelp()
-                    || (!jCommanderParsed.isStream()
-                    && jCommanderParsed.getQuery().size() == 0)) {
+            JCommander jCommanderSettings = new JCommander(jCommanderParser, args);
+            if (jCommanderParser.isHelp()
+                    || (!jCommanderParser.isStream()
+                    && jCommanderParser.getQuery().size() == 0)) {
                 throw new ParameterException("");
             }
         } catch (ParameterException | ClassCastException e) {
@@ -282,30 +273,68 @@ final class TwitterStream {
         }
 
         String printLocation = "World";
-        if (jCommanderParsed.getLocation() != "") {
-            printLocation = jCommanderParsed.getLocation();
+        if (jCommanderParser.getLocation() != "") {
+            printLocation = jCommanderParser.getLocation();
         }
 
-        String printedQuery = String.join(", ", jCommanderParsed.getQuery());
+        String printedQuery = String.join(", ", jCommanderParser.getQuery());
         if (printedQuery.equals("")) {
             printedQuery = "-";
         }
         System.out.println("Твиты по запросу "
                         + printedQuery
                         + " для " + printLocation
-                        + TweetPrinter.tweetsSeparator()
+                        + TweetFormater.tweetsSeparator()
         );
 
+        final List<String> allTweets;
+        GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
+        LocationData currentLocation = geoLocationResolver.resolveLocation(jCommanderParser.getLocation());
+        if (jCommanderParser.getLocation() != "" && currentLocation == null) {
+            System.err.println("Не могу определить регион=(\n" + "Поиск по World:");
+        }
+        TwitterStream twitterStream = new TwitterStream();
 
-        if (jCommanderParsed.isStream()) {
-            printTwitterStream(jCommanderParsed);
+        if (jCommanderParser.isStream()) {
+            twitterStream.printTwitterStream(jCommanderParser);
             exitWithCtrlD();
         } else {
-            printTwitterLimited(jCommanderParsed);
+            allTweets = twitterStream.getTwitterLimited(jCommanderParser,
+                    currentLocation,
+                    TwitterFactory.getSingleton());
+            TweetPrinter tweetPrinter = new TweetPrinter(System.out);
+            tweetPrinter.printTweets(allTweets);
         }
 
 
         //System.out.println(LocalTime.now() + " " + LocalTime.now().toSecondOfDay());
+    }
+
+    public static void write(String fileName, String text) {
+        //Определяем файл
+        File file = new File(fileName);
+
+        try {
+            //проверяем, что если файл не существует то создаем его
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            //PrintWriter обеспечит возможности записи в файл
+            PrintWriter out = new PrintWriter(file.getAbsoluteFile());
+
+            try {
+                //Записываем текст у файл
+                out.print(text);
+            } finally {
+                //После чего мы должны закрыть файл
+                //Иначе файл не запишется
+                out.close();
+            }
+        } catch (IOException e) {
+            e.getStackTrace();
+            //throw new RuntimeException(e);
+        }
     }
 }
 

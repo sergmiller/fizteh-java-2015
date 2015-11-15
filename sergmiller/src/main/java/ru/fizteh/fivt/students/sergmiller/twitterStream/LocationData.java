@@ -7,9 +7,11 @@ import twitter4j.GeoLocation;
 public class LocationData {
     private final GeoLocation geoLocation;
     private final Double radius;
-    LocationData(final GeoLocation newGeoLocation, final Double newRadius) {
+    private final String name;
+    public LocationData(final GeoLocation newGeoLocation, final Double newRadius, final String newName) {
         this.geoLocation = newGeoLocation;
         this.radius = newRadius;
+        this.name = newName;
     }
     public GeoLocation getGeoLocation() {
         return geoLocation;
@@ -17,5 +19,7 @@ public class LocationData {
     public Double getRadius() {
         return radius;
     }
-
+    public String getName() {
+        return name;
+    }
 }

@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.exceptions.GettingMyLocationException;
 import twitter4j.GeoLocation;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,7 +25,28 @@ public class GeoLocationResolver {
     public static final int MAX_QUANTITY_OF_TRIES = 2;
     static final double EARTH_RADIUS = 6371;
 
-    public static LocationData getGeoLocation(final String geoRequest)
+    public LocationData resolveLocation(final String nameOfLocation) {
+        LocationData currentLocation;
+        try {
+            switch (nameOfLocation) {
+                case "nearby":
+                    currentLocation = getGeoLocation(getNameOfCurrentLocation());
+                    break;
+                case "":
+                    currentLocation = null;
+                    break;
+                default:
+                    currentLocation = getGeoLocation(nameOfLocation);
+                    break;
+            }
+        } catch (IOException | JSONException | GettingMyLocationException e) {
+            //                    e.getMessage();
+            currentLocation = null;
+        }
+        return currentLocation;
+    }
+
+    public LocationData getGeoLocation(final String geoRequest)
             throws IOException, JSONException {
         final String baseUrl = "http://maps.googleapis.com/maps/api/geocode/json";
         final Map<String, String> params = Maps.newHashMap();
@@ -32,7 +54,7 @@ public class GeoLocationResolver {
         params.put("address", geoRequest);
         final String url = baseUrl + '?' + encodeParams(params);
         final JSONObject response = GeoLocationResolver.read(url);
-                System.out.print("****************GOOGLE_API_DATA********************\n"
+        System.out.print("****************GOOGLE_API_DATA********************\n"
                 + response.toString()
                 + "\n*****************GOOGLE_API_DATA*******************\n");
         double northEastBoundLongitude, northEastBoundLatitude;
@@ -57,7 +79,7 @@ public class GeoLocationResolver {
                 southWestBoundLatitude, southWestBoundLongitude
         );
         approximatedRadius /= 2;
-        return new LocationData((new GeoLocation(latitude, longitude)), new Double(approximatedRadius));
+        return new LocationData((new GeoLocation(latitude, longitude)), new Double(approximatedRadius), geoRequest);
     }
 
     public static String readAll(final Reader rd) throws IOException {
@@ -131,8 +153,8 @@ public class GeoLocationResolver {
                         new JSONObject(responseBuilder.toString());
 
                 System.out.print("************************************\n"
-                + locationInfo.toString()
-                + "\n************************************\n");
+                        + locationInfo.toString()
+                        + "\n************************************\n");
 
                 return locationInfo.getString("city");
             } catch (IOException | JSONException e) {
