@@ -12,6 +12,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.GeoLocationResolver;
 
 import ru.fizteh.fivt.students.sergmiller.twitterStream.LocationData;
+import ru.fizteh.fivt.students.sergmiller.twitterStream.exceptions.GettingMyLocationException;
 import twitter4j.GeoLocation;
 import twitter4j.TwitterStream;
 
@@ -32,7 +33,7 @@ public class GeoLocationResolverTest extends TestCase {
     private URL dummyMyLocationURL;
     private LocationData LondonLocation = new LocationData(
             new GeoLocation(51.5073509, -0.1277583), 23.539304731202712, "London");
-    private LocationData DolgoprudniyLocation = new LocationData(
+    private LocationData DolgoprudnyyLocation = new LocationData(
             new GeoLocation(55.947064, 37.4992755), 6.117792942260596, "Dolgoprudnyy");
     private final String URLIPinfoAdress = "http://ipinfo.io/json";
     private final String URLGoogleAPIAdress = "http://maps.googleapis.com/maps/api/geocode/json?address=";
@@ -57,7 +58,7 @@ public class GeoLocationResolverTest extends TestCase {
 
 
     @Test
-    public void testlocationResolver() throws Exception {
+    public void testResolveEmptyLocation() throws Exception {
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
         assertEquals(null, geoLocationResolver.resolveLocation(""));
     }
@@ -79,7 +80,7 @@ public class GeoLocationResolverTest extends TestCase {
                 TwitterStream.class.getResourceAsStream("/LondonGoogleAPIData.json");
         PowerMockito.when(dummyGeoDataURL.openStream()).thenReturn(inputStream);
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
-        LocationData location = geoLocationResolver.getGeoLocation(LONDON);
+        LocationData location = geoLocationResolver.resolveLocation(LONDON);
 
         assertEquals(51.5073509, location.getGeoLocation().getLatitude());
         assertEquals(-0.1277583, location.getGeoLocation().getLongitude());
@@ -89,9 +90,31 @@ public class GeoLocationResolverTest extends TestCase {
     @Test(expected = JSONException.class)
     public void testGetGeoLocationFailed() throws Exception {
         InputStream inputStream =
-                TwitterStream.class.getResourceAsStream("/GallifreyGoogleAPIData.json");
+                TwitterStream.class.getResourceAsStream("/Gallifrey.json");
         PowerMockito.when(dummyGeoDataURL.openStream()).thenReturn(inputStream);
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
-        LocationData location = geoLocationResolver.getGeoLocation(GALLIFREY);
+        geoLocationResolver.getGeoLocation(GALLIFREY);
     }
+
+    @Test(expected = GettingMyLocationException.class)
+    public void testGetNameOfCurrentLocationFailed() throws Exception {
+        InputStream inputStream = TwitterStream.class.getResourceAsStream("/Gallifrey.json");
+        //InputStream inputStream = new ByteArrayInputStream((org.apache.commons.io.IOUtils.toString(TwitterStream.class.getResourceAsStream("/DolgoprudnyyIPinfo.json"))).getBytes(StandardCharsets.UTF_8));
+        //DolgoprudnyyIPResponce = org.apache.commons.io.IOUtils.toString(inputStream);
+        PowerMockito.when(dummyMyLocationURL.openStream()).thenReturn(inputStream);
+        GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
+        geoLocationResolver.getNameOfCurrentLocation();
+    }
+
+    @Test
+    public void testResolveLocationFailed() throws Exception {
+        InputStream inputStream = TwitterStream.class.getResourceAsStream("/Gallifrey.json");
+        //InputStream inputStream = new ByteArrayInputStream((org.apache.commons.io.IOUtils.toString(TwitterStream.class.getResourceAsStream("/DolgoprudnyyIPinfo.json"))).getBytes(StandardCharsets.UTF_8));
+        //DolgoprudnyyIPResponce = org.apache.commons.io.IOUtils.toString(inputStream);
+        PowerMockito.when(dummyMyLocationURL.openStream()).thenReturn(inputStream);
+        GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
+        LocationData location = geoLocationResolver.resolveLocation("Gallifrey");
+        assertEquals(null, location);
+    }
+
 }

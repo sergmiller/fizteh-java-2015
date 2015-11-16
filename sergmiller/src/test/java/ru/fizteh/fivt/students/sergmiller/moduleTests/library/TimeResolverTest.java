@@ -29,9 +29,10 @@ public class TimeResolverTest extends TestCase {
 
     @Test
     public void testDeterminerDifference() throws Exception {
+        TimeResolver timeResolver = new TimeResolver();
         String[] results = new String[5];
         for (int i = 0; i < testedDates.size() - 1; ++i) {
-            results[i] = TimeResolver.getTime(testedDates.get(i+1), testedDates.get(i));
+            results[i] = timeResolver.getTime(testedDates.get(i+1), testedDates.get(i));
         }
 
         assertEquals(results[0], "Только что");

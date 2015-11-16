@@ -23,6 +23,7 @@ import twitter4j.Twitter4jTestUtils;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -39,11 +40,13 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({TimeResolver.class})
+@PrepareForTest({TimeResolver.class, TwitterStreamRunner.class})
 //@RunWith(MockitoJUnitRunner.class)
 public class TwitterLimitedTest extends TestCase{
     private LocationData LondonLocation = new LocationData(
             new GeoLocation(51.5073509, -0.1277583), 23.539304731202712, "London");
+    private LocationData DolgoprudnyyLocation = new LocationData(
+            new GeoLocation(55.947064, 37.4992755), 6.117792942260596, "Dolgoprudnyy");
     private static List<Status> doctorWhoTweets;
 
 
@@ -53,8 +56,8 @@ public class TwitterLimitedTest extends TestCase{
     @Mock
     Twitter twitter;
 
-    @Mock
-    GeoLocationResolver geoLocationResolver;
+//    @Mock
+//    GeoLocationResolver geoLocationResolver;
 
     @Mock
     twitter4j.TwitterStream twitterStream;
@@ -69,17 +72,26 @@ public class TwitterLimitedTest extends TestCase{
 
     @Before
     public void setUp() throws Exception {
-        when(geoLocationResolver.getGeoLocation("London"))
-               .thenReturn(LondonLocation);
+//        when(geoLocationResolver.getGeoLocation("London"))
+//               .thenReturn(LondonLocation);
 //
         QueryResult queryResultDoctorWho = mock(QueryResult.class);
         when(queryResultDoctorWho.getTweets()).thenReturn(doctorWhoTweets);
 
+        QueryResult emptyQueryResult = mock(QueryResult.class);
+        when(emptyQueryResult.getTweets()).thenReturn(new ArrayList<Status>());
+
         when(twitter.search(argThat(hasProperty("query", equalTo("doctorWho")))))
                 .thenReturn(queryResultDoctorWho);
 
+        when(twitter.search(argThat(hasProperty("query", equalTo("empty")))))
+                .thenReturn(emptyQueryResult);
+
         PowerMockito.mockStatic(TimeResolver.class);
-        PowerMockito.when(TimeResolver.getTime(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn("Только что");
+        PowerMockito.when(TimeResolver.getTime(any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn("Только что");
+
+        PowerMockito.mockStatic(TwitterStreamRunner.class);
     }
 
     @Test
@@ -87,9 +99,10 @@ public class TwitterLimitedTest extends TestCase{
         final String[] dummyArgs = {"-q", "doctorWho", "-p", "London"};
         JCommanderParser doctorWhoQuery = new JCommanderParser();
         JCommander jCommander = new JCommander(doctorWhoQuery, dummyArgs);
+        doctorWhoQuery.setGeoLocation(LondonLocation);
         TweetsGetterLimeted tweetsGetterLimeted = new TweetsGetterLimeted();
         List<String> currentTweets = tweetsGetterLimeted.getTwitterLimited(
-                        doctorWhoQuery, LondonLocation, twitter);
+                        doctorWhoQuery, twitter);
 
         assertEquals(5, currentTweets.size());
 
@@ -113,9 +126,10 @@ public class TwitterLimitedTest extends TestCase{
         final String[] dummyArgs = {"-q", "doctorWho", "-p", "London", "--hideRetweets"};
         JCommanderParser doctorWhoQuery = new JCommanderParser();
         JCommander jCommander = new JCommander(doctorWhoQuery, dummyArgs);
+        doctorWhoQuery.setGeoLocation(LondonLocation);
         TweetsGetterLimeted tweetsGetterLimeted = new TweetsGetterLimeted();
         List<String> currentTweets = tweetsGetterLimeted.getTwitterLimited(
-                doctorWhoQuery, LondonLocation, twitter);
+                doctorWhoQuery, twitter);
 
         assertEquals(3, currentTweets.size());
 
@@ -136,4 +150,63 @@ public class TwitterLimitedTest extends TestCase{
                 + "--------------------------------------------------------------------------------")));
     }
 
+    @Test
+    public void testPrintTwitterLimitedEmptyAnswerEmptyLocation() throws Exception {
+        final String[] dummyArgs = {"-q", "empty"};
+        JCommanderParser emptyQuery = new JCommanderParser();
+        JCommander jCommander = new JCommander(emptyQuery, dummyArgs);
+        emptyQuery.setGeoLocation(null);
+        TweetsGetterLimeted tweetsGetterLimeted = new TweetsGetterLimeted();
+        List<String> currentTweets = tweetsGetterLimeted.getTwitterLimited(
+                emptyQuery, twitter);
+
+        assertEquals(0, currentTweets.size());
+
+        PowerMockito.verifyStatic();
+        TwitterStreamRunner.printIntoStdout("\nПо запросу empty ничего не найдено=(\n\n"
+                + "Рекомендации:\n\n"
+                + "Убедитесь, что все слова написаны без ошибок.\n"
+                + "Попробуйте использовать другие ключевые слова.\n"
+                + "Попробуйте использовать более популярные ключевые слова.");
+    }
+
+    @Test
+    public void testPrintTwitterLimitedEmptyAnswerWithFailedLocation() throws Exception {
+        final String[] dummyArgs = {"-q", "empty", "-p", "Gallifrey"};
+        JCommanderParser emptyQuery = new JCommanderParser();
+        JCommander jCommander = new JCommander(emptyQuery, dummyArgs);
+        emptyQuery.setGeoLocation(null);
+        TweetsGetterLimeted tweetsGetterLimeted = new TweetsGetterLimeted();
+        List<String> currentTweets = tweetsGetterLimeted.getTwitterLimited(
+                emptyQuery, twitter);
+
+        assertEquals(0, currentTweets.size());
+
+        PowerMockito.verifyStatic();
+        TwitterStreamRunner.printIntoStdout("\nПо запросу empty для World ничего не найдено=(\n\n"
+                + "Рекомендации:\n\n"
+                + "Убедитесь, что все слова написаны без ошибок.\n"
+                + "Попробуйте использовать другие ключевые слова.\n"
+                + "Попробуйте использовать более популярные ключевые слова.");
+    }
+
+    @Test
+    public void testPrintTwitterLimitedEmptyAnswerWithLocation() throws Exception {
+        final String[] dummyArgs = {"-q", "empty", "-p", "Dolgoprudnyy"};
+        JCommanderParser emptyQuery = new JCommanderParser();
+        JCommander jCommander = new JCommander(emptyQuery, dummyArgs);
+        emptyQuery.setGeoLocation(DolgoprudnyyLocation);
+        TweetsGetterLimeted tweetsGetterLimeted = new TweetsGetterLimeted();
+        List<String> currentTweets = tweetsGetterLimeted.getTwitterLimited(
+                emptyQuery, twitter);
+
+        assertEquals(0, currentTweets.size());
+
+        PowerMockito.verifyStatic();
+        TwitterStreamRunner.printIntoStdout("\nПо запросу empty для Dolgoprudnyy ничего не найдено=(\n\n"
+                + "Рекомендации:\n\n"
+                + "Убедитесь, что все слова написаны без ошибок.\n"
+                + "Попробуйте использовать другие ключевые слова.\n"
+                + "Попробуйте использовать более популярные ключевые слова.");
+    }
 }

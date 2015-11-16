@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class JCommanderParser {
+    private LocationData geoLocation;
     @Parameter
     public static final int DEFAULT_TWEETS_LIMIT = 100;
 
@@ -66,7 +67,11 @@ public final class JCommanderParser {
         return location;
     }
 
-    public void setLocation(final String newLocation) {
-        location = newLocation;
+    public LocationData getGeoLocation() {
+        return geoLocation;
+    }
+
+    public void setGeoLocation(final LocationData newLocation) {
+        geoLocation = newLocation;
     }
 } //Thread.sleep(10000) <- sleep

@@ -55,8 +55,9 @@ public class TwitterStreamRunner {
 
         final List<String> allTweets;
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
-        LocationData currentLocation = geoLocationResolver.resolveLocation(jCommanderParser.getLocation());
-        if (jCommanderParser.getLocation() != "" && currentLocation == null) {
+        jCommanderParser.setGeoLocation(geoLocationResolver
+                .resolveLocation(jCommanderParser.getLocation()));
+        if (jCommanderParser.getLocation() != "" && jCommanderParser.getGeoLocation() == null) {
             System.err.println("Не могу определить регион=(\n" + "Поиск по World:");
         }
 
@@ -64,16 +65,14 @@ public class TwitterStreamRunner {
             TwitterStreamLauncher twitterStreamLauncher = new TwitterStreamLauncher(
                     TwitterStreamFactory.getSingleton(),
                     TwitterStreamLauncher.getOutConsumer(),
-                    jCommanderParser,
-                    currentLocation
+                    jCommanderParser
             );
 
-            twitterStreamLauncher.printTwitterStream();
+            twitterStreamLauncher.getTwitterStream();
             exitWithCtrlD();
         } else {
             TweetsGetterLimeted tweetsGetterLimeted = new TweetsGetterLimeted();
             allTweets = tweetsGetterLimeted.getTwitterLimited(jCommanderParser,
-                    currentLocation,
                     TwitterFactory.getSingleton());
             TweetPrinter tweetPrinter = new TweetPrinter(System.out);
             tweetPrinter.printTweets(allTweets);
@@ -127,5 +126,9 @@ public class TwitterStreamRunner {
             e.getStackTrace();
             //throw new RuntimeException(e);
         }
+    }
+
+    public static void printIntoStdout(final String string) {
+        System.out.println(string);
     }
 }

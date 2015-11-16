@@ -12,6 +12,7 @@ import java.util.List;
 public class TweetsGetterLimeted {
     static final String RADIUS_UNIT = "km";
     public static final int MAX_QUANTITY_OF_TRIES = 2;
+
     /**
      * Mod with print limited quantity of text.
      *
@@ -19,9 +20,10 @@ public class TweetsGetterLimeted {
      * @throws TwitterException is kind of exception
      */
     public List<String> getTwitterLimited(
-            final JCommanderParser jCommanderParser, final LocationData currentlocation, Twitter twitter) {
+            final JCommanderParser jCommanderParser, final Twitter twitter) {
         int currentQuantityOfTries = 0;
         List<String> allTweets = new ArrayList<>();
+        LocationData currentLocation = jCommanderParser.getGeoLocation();
         while (currentQuantityOfTries < MAX_QUANTITY_OF_TRIES) {
             try {
                 String joinedQuery = "";
@@ -30,8 +32,8 @@ public class TweetsGetterLimeted {
                 }
                 Query query = new Query(joinedQuery);
 
-                if (currentlocation != null) {
-                    query.geoCode(currentlocation.getGeoLocation(), currentlocation.getRadius(), RADIUS_UNIT);
+                if (currentLocation != null) {
+                    query.geoCode(currentLocation.getGeoLocation(), currentLocation.getRadius(), RADIUS_UNIT);
                 }
 
                 query.setCount(jCommanderParser.getLimit());
@@ -68,20 +70,32 @@ public class TweetsGetterLimeted {
                 } while (query != null && !flagLimit);
 
                 if (allTweets.isEmpty()) {
-                    //System.out.print("result: " + );
-                    System.err.println("\nПо запросу "
-                                    + String.join(", ", jCommanderParser.getQuery())
-                                    + " для "
-                                    + currentlocation.getName()
-                                    + " ничего не найдено=(\n\n"
-                                    + "Рекомендации:\n\n"
-                                    + "Убедитесь, что все слова"
-                                    + " написаны без ошибок.\n"
-                                    + "Попробуйте использовать "
-                                    + "другие ключевые слова.\n"
-                                    + "Попробуйте использовать "
-                                    + "более популярные ключевые слова."
-                    );
+
+                    StringBuilder emptyAnswerMessage = new StringBuilder();
+
+                    emptyAnswerMessage.append("\nПо запросу ");
+                    emptyAnswerMessage.append(String.join(", ", jCommanderParser.getQuery()));
+
+                    String printedNameOfLocation = "";
+
+                    if (currentLocation == null && jCommanderParser.getLocation() != "") {
+                        printedNameOfLocation = " для World";
+                    } else {
+                        if (currentLocation != null) {
+                            printedNameOfLocation = " для " + currentLocation.getName();
+                        }
+                    }
+                    emptyAnswerMessage.append(printedNameOfLocation);
+                    emptyAnswerMessage.append(" ничего не найдено=(\n\n"
+                            + "Рекомендации:\n\n"
+                            + "Убедитесь, что все слова"
+                            + " написаны без ошибок.\n"
+                            + "Попробуйте использовать "
+                            + "другие ключевые слова.\n"
+                            + "Попробуйте использовать "
+                            + "более популярные ключевые слова.");
+
+                    TwitterStreamRunner.printIntoStdout(emptyAnswerMessage.toString());
                 } else {
                     Collections.reverse(allTweets);
                 }
@@ -90,7 +104,7 @@ public class TweetsGetterLimeted {
             } catch (TwitterException twExp) {
                 ++currentQuantityOfTries;
                 if (currentQuantityOfTries == MAX_QUANTITY_OF_TRIES) {
-                    System.err.println(twExp.getMessage()
+                    TwitterStreamRunner.printIntoStdout(twExp.getMessage()
                             + "\nЧто-то пошло не так=(\n"
                             + "Проверьте наличие соединения.");
                 }

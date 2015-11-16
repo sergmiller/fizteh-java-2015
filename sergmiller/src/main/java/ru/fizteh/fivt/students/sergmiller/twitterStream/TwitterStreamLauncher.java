@@ -23,18 +23,17 @@ public final class TwitterStreamLauncher {
 
     public TwitterStreamLauncher(final twitter4j.TwitterStream newTwitterStream,
                                  final Consumer<String> newConsumer,
-                                 final JCommanderParser newJCommanderParser,
-                                 final LocationData newLocation) {
+                                 final JCommanderParser newJCommanderParser) {
         twitterStream = newTwitterStream;
         consumer = newConsumer;
         jCommanderParser = newJCommanderParser;
-        currentLocation = newLocation;
+        currentLocation = newJCommanderParser.getGeoLocation();
     }
 
     /**
      * Stream mod.
      */
-    public void printTwitterStream() {
+    public void getTwitterStream() {
         StatusListener listener = getListener();
         String[] queries = jCommanderParser
                 .getQuery().toArray(
@@ -55,7 +54,7 @@ public final class TwitterStreamLauncher {
                     return;
                 }
 
-                if (!jCommanderParser.getLocation().equals("")) {
+                if (jCommanderParser.getGeoLocation() != null) {
                     final double curTweetLatitude;
                     final double curTweetLongitude;
                     if (status.getGeoLocation() != null) {
@@ -93,11 +92,7 @@ public final class TwitterStreamLauncher {
     }
 
     public static Consumer<String> getOutConsumer() {
-        return (x) -> printIntoStdout(x);
-    }
-
-    public static void printIntoStdout(final String string) {
-        System.out.println(string);
+        return (x) -> TwitterStreamRunner.printIntoStdout(x);
     }
 }
 

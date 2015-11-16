@@ -1,5 +1,3 @@
-package ru.mipt.diht.students.ale3otik.moduleTests.library;
-
 import com.beust.jcommander.JCommander;
 import junit.framework.TestCase;
 import org.junit.Before;
@@ -12,10 +10,7 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import ru.fizteh.fivt.students.sergmiller.twitterStream.JCommanderParser;
-import ru.fizteh.fivt.students.sergmiller.twitterStream.LocationData;
-import ru.fizteh.fivt.students.sergmiller.twitterStream.TweetsGetterLimeted;
-import ru.fizteh.fivt.students.sergmiller.twitterStream.TwitterStreamLauncher;
+import ru.fizteh.fivt.students.sergmiller.twitterStream.*;
 import sun.text.resources.cs.JavaTimeSupplementary_cs;
 import twitter4j.*;
 
@@ -30,11 +25,11 @@ import static org.mockito.Mockito.*;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Thread.class})
+@PrepareForTest({Thread.class, TweetFormater.class})
 public class TwitterStreamTest extends TestCase{
     private LocationData LondonLocation = new LocationData(
             new GeoLocation(51.5073509, -0.1277583), 23.539304731202712, "London");
-    private LocationData DolgoprudniyLocation = new LocationData(
+    private LocationData DolgoprudnyyLocation = new LocationData(
             new GeoLocation(55.947064, 37.4992755), 6.117792942260596, "Dolgoprudnyy");
     private StatusAdapter statusAdapter;
     private JCommanderParser jCommanderParser;
@@ -42,7 +37,7 @@ public class TwitterStreamTest extends TestCase{
     private TwitterStreamLauncher twitterStreamLauncher;
     List <String> results = new ArrayList<>();
     public static List <Status> doctorWhoTweets;
-    private Consumer<String> dummyConsumer = (x)->mockedPrint(x);
+    //private Consumer<String> dummyConsumer = (x)->mockedPrint(x);
 
     @Mock
     private Status dummyStatus;
@@ -50,53 +45,128 @@ public class TwitterStreamTest extends TestCase{
     @Mock
     private TwitterStream dummyTwitterStream;
 
-    @BeforeClass
-    public static void loadStatuses() {
-        doctorWhoTweets = Twitter4jTestUtils.tweetsFromJson("/DoctorWhoInLondonTweets.json");
+    @Mock
+    private Consumer<String> dummyConsumer;
+
+    @Before
+    public void setUp() {
+        when(dummyStatus.getGeoLocation()).thenReturn(null);
+        when(dummyStatus.getText()).thenReturn("message");
+
+        PowerMockito.mockStatic(Thread.class);
+
+        PowerMockito.mockStatic(TweetFormater.class);
+
     }
 
-//    @Before
-//    public void setUp() {
-//        ArgumentCaptor<StatusListener> statusCaptor
-//                = ArgumentCaptor.forClass(StatusListener.class);
-//        doNothing().when(twitterStream).addListener((StatusListener)
-//                statusCaptor.capture());
-//        doAnswer(invocation -> {
-//            aMoscowStatuses.forEach(s -> statusCaptor.getValue().onStatus(s));
-//            return null;
-//        }).when(twitterStream).filter(any(FilterQuery.class));
-//        Mockito.when(dummyStatus.getGeoLocation()).thenReturn(null);
-//        Mockito.when(dummyStatus.getText()).thenReturn("some message");
-//
-//        PowerMockito.mockStatic(Thread.class);
-//
-//        twitterStreamLauncher = new TwitterStreamLauncher(dummyTwitterStream, dummyConsumer);
-//
-//
-//    }
-
-//    private void createLauncherWithArguments(boolean isGeolocationNeeded,String... args) {
-//        arguments = new Arguments();
-//        jcm = new JCommander(arguments);
-//        jcm.parse(args);
-//        if(isGeolocationNeeded){
-//            arguments.setGeoLocationInfo(londonGeoLocationInfo);
-//        }
-//
-//    }
-
-    public void mockedPrint(String string) {
-        results.add(string);
+    private void initWithArgs(boolean withGeolocation,String... args) {
+        jCommanderParser = new JCommanderParser();
+        jCommander = new JCommander(jCommanderParser, args);
+        if(withGeolocation){
+            jCommanderParser.setGeoLocation(LondonLocation);
+        }
+        twitterStreamLauncher = new TwitterStreamLauncher(dummyTwitterStream, dummyConsumer, jCommanderParser);
     }
 
-//    @Test
-//    public void testPrintTwitterStream() throws Exception{
-//        final String[] dummyArgs = {"-q", "doctorWho", "-p", "London", "-s"};
-//        JCommanderParser doctorWhoQuery = new JCommanderParser();
-//        JCommander jCommander = new JCommander(doctorWhoQuery, dummyArgs);
-//        twitterStreamLauncher.printTwitterStream(doctorWhoQuery, LondonLocation);
-//
-//        //assertThat();
-//    }
+    private void mockTweetFormater(){
+        String text = dummyStatus.getText();
+        PowerMockito.when(TweetFormater
+                .formatTweet(dummyStatus, jCommanderParser))
+                .thenReturn(text);
+    }
 
+    @Test
+    public void testStatusListenerNotRetweetNullRequestLocation() throws Exception {
+        when(dummyStatus.isRetweet()).thenReturn(false);
+
+        initWithArgs(false, "-q", "query", "-s", "--hideRetweets");
+        statusAdapter = twitterStreamLauncher.getListener();
+        mockTweetFormater();
+
+        statusAdapter.onStatus(dummyStatus);
+        verify(dummyConsumer).accept(dummyStatus.getText());
+
+        initWithArgs(false, "-q", "query", "-s");
+        statusAdapter = twitterStreamLauncher.getListener();
+        mockTweetFormater();
+
+        statusAdapter.onStatus(dummyStatus);
+        verify(dummyConsumer, times(2)).accept(dummyStatus.getText());
+    }
+
+    @Test
+    public void testStatusListenerRetweetNullRequestLocation() throws Exception {
+        when(dummyStatus.isRetweet()).thenReturn(true);
+
+        initWithArgs(false,"-q", "query", "-s");
+        statusAdapter = twitterStreamLauncher.getListener();
+        mockTweetFormater();
+
+        statusAdapter.onStatus(dummyStatus);
+        verify(dummyConsumer, times(1)).accept(dummyStatus.getText());
+
+        initWithArgs(false, "-q", "query", "-s", "--hideRetweets");
+        statusAdapter = twitterStreamLauncher.getListener();
+        mockTweetFormater();
+
+        statusAdapter.onStatus(dummyStatus);
+        verify(dummyConsumer, times(1)).accept(anyString());
+    }
+
+    @Test
+    public void testStatusListenerNullStatusLocation() throws Exception {
+        when(dummyStatus.isRetweet()).thenReturn(false);
+        when(dummyStatus.getGeoLocation()).thenReturn(null);
+
+        initWithArgs(true, "-q", "query", "-s");
+        statusAdapter = twitterStreamLauncher.getListener();
+        mockTweetFormater();
+
+        statusAdapter.onStatus(dummyStatus);
+        verify(dummyConsumer, times(0)).accept(anyString());
+    }
+
+    @Test
+    public void testStatusListenerDifferentLocations() throws Exception {
+        when(dummyStatus.isRetweet()).thenReturn(false);
+        when(dummyStatus.getGeoLocation()).thenReturn(DolgoprudnyyLocation.getGeoLocation());
+
+        initWithArgs(true, "-q", "some query", "-s");
+        statusAdapter = twitterStreamLauncher.getListener();
+        mockTweetFormater();
+
+        statusAdapter.onStatus(dummyStatus);
+        verifyZeroInteractions(dummyConsumer);
+    }
+
+    @Test
+    public void testStatusListenerSuccessLocation() throws Exception {
+        when(dummyStatus.isRetweet()).thenReturn(false);
+        when(dummyStatus.getGeoLocation()).thenReturn(LondonLocation.getGeoLocation());
+
+        initWithArgs(true, "-q", "some query", "-s");
+        statusAdapter = twitterStreamLauncher.getListener();
+        mockTweetFormater();
+
+        statusAdapter.onStatus(dummyStatus);
+        verify(dummyConsumer, times(1)).accept(anyString());
+    }
+
+    @Test
+    public void testTwitterStreamWork() throws Exception {
+        initWithArgs(false, "-q", "some query", "-s");
+        twitterStreamLauncher.getTwitterStream();
+        verify(dummyTwitterStream).filter(any(FilterQuery.class));
+
+        initWithArgs(false, "-s");
+
+        twitterStreamLauncher.getTwitterStream();
+        verify(dummyTwitterStream).sample();
+
+        initWithArgs(false,"-s");
+
+       // PowerMockito.doThrow(new InterruptedException()).when(Thread.class).sleep(anyInt());
+       // PowerMockito.when(new Thread).sleep(1000).thenThrow(new InterruptedException());
+        // twitterStreamLauncher.getTwitterStream();
+    }
 }

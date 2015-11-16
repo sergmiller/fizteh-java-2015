@@ -26,7 +26,7 @@ public class GeoLocationResolver {
     static final double EARTH_RADIUS = 6371;
 
 
-    public LocationData resolveLocation(final String nameOfLocation) {
+    public static LocationData resolveLocation(final String nameOfLocation) {
         LocationData currentLocation;
         try {
             switch (nameOfLocation) {
@@ -40,14 +40,13 @@ public class GeoLocationResolver {
                     currentLocation = getGeoLocation(nameOfLocation);
                     break;
             }
-        } catch (IOException | JSONException | GettingMyLocationException e) {
-            //                    e.getMessage();
+        } catch (NullPointerException | IOException | JSONException | GettingMyLocationException e) {
             currentLocation = null;
         }
         return currentLocation;
     }
 
-    public LocationData getGeoLocation(final String geoRequest)
+    public static LocationData getGeoLocation(final String geoRequest)
             throws IOException, JSONException {
         final String baseUrl = "http://maps.googleapis.com/maps/api/geocode/json";
         final Map<String, String> params = Maps.newHashMap();
@@ -55,9 +54,9 @@ public class GeoLocationResolver {
         params.put("address", geoRequest);
         final String url = baseUrl + '?' + encodeParams(params);
         final JSONObject response = GeoLocationResolver.read(url);
-        System.out.print("****************GOOGLE_API_DATA********************\n"
-                + response.toString()
-                + "\n*****************GOOGLE_API_DATA*******************\n");
+//        System.out.print("****************GOOGLE_API_DATA********************\n"
+//                + response.toString()
+//                + "\n*****************GOOGLE_API_DATA*******************\n");
         double northEastBoundLongitude, northEastBoundLatitude;
         double southWestBoundLongitude, southWestBoundLatitude;
         double latitude, longitude;
@@ -80,9 +79,9 @@ public class GeoLocationResolver {
                 southWestBoundLatitude, southWestBoundLongitude
         );
         approximatedRadius /= 2;
-        System.out.print("****************GOOGLE_API_DATA********************\n"
-                + latitude + " " + longitude + " " + approximatedRadius
-                + "\n*****************GOOGLE_API_DATA*******************\n");
+//        System.out.print("****************GOOGLE_API_DATA********************\n"
+//                + latitude + " " + longitude + " " + approximatedRadius
+//                + "\n*****************GOOGLE_API_DATA*******************\n");
         return new LocationData((new GeoLocation(latitude, longitude)), new Double(approximatedRadius), geoRequest);
     }
 
@@ -156,9 +155,6 @@ public class GeoLocationResolver {
                 JSONObject locationInfo =
                         new JSONObject(responseBuilder.toString());
 
-                System.out.print("************************************\n"
-                        + locationInfo.toString()
-                        + "\n************************************\n");
 
                 return locationInfo.getString("city");
             } catch (IOException | JSONException e) {
