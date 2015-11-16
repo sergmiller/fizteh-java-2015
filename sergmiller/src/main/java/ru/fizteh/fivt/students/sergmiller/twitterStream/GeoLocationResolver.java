@@ -25,6 +25,7 @@ public class GeoLocationResolver {
     public static final int MAX_QUANTITY_OF_TRIES = 2;
     static final double EARTH_RADIUS = 6371;
 
+
     public LocationData resolveLocation(final String nameOfLocation) {
         LocationData currentLocation;
         try {
@@ -79,6 +80,9 @@ public class GeoLocationResolver {
                 southWestBoundLatitude, southWestBoundLongitude
         );
         approximatedRadius /= 2;
+        System.out.print("****************GOOGLE_API_DATA********************\n"
+                + latitude + " " + longitude + " " + approximatedRadius
+                + "\n*****************GOOGLE_API_DATA*******************\n");
         return new LocationData((new GeoLocation(latitude, longitude)), new Double(approximatedRadius), geoRequest);
     }
 

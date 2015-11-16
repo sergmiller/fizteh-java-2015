@@ -12,12 +12,14 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.GeoLocationResolver;
 
 import ru.fizteh.fivt.students.sergmiller.twitterStream.LocationData;
+import twitter4j.GeoLocation;
 import twitter4j.TwitterStream;
 
 import java.io.InputStream;
 
 
 import java.net.URL;
+import java.time.LocalDate;
 
 /**
  * Created by sergmiller on 26.10.15.
@@ -28,6 +30,10 @@ import java.net.URL;
 public class GeoLocationResolverTest extends TestCase {
     private URL dummyGeoDataURL;
     private URL dummyMyLocationURL;
+    private LocationData LondonLocation = new LocationData(
+            new GeoLocation(51.5073509, -0.1277583), 23.539304731202712, "London");
+    private LocationData DolgoprudniyLocation = new LocationData(
+            new GeoLocation(55.947064, 37.4992755), 6.117792942260596, "Dolgoprudnyy");
     private final String URLIPinfoAdress = "http://ipinfo.io/json";
     private final String URLGoogleAPIAdress = "http://maps.googleapis.com/maps/api/geocode/json?address=";
     private final String DOLGOPRUDNYY = "Dolgoprudnyy";
@@ -47,6 +53,13 @@ public class GeoLocationResolverTest extends TestCase {
 
         dummyMyLocationURL = PowerMockito.mock(URL.class);
         PowerMockito.whenNew(URL.class).withArguments(URLIPinfoAdress).thenReturn(dummyMyLocationURL);
+    }
+
+
+    @Test
+    public void testlocationResolver() throws Exception {
+        GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
+        assertEquals(null, geoLocationResolver.resolveLocation(""));
     }
 
     @Test

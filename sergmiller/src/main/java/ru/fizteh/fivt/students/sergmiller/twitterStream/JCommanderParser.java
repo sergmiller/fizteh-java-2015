@@ -9,7 +9,7 @@ import com.beust.jcommander.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JCommanderParser {
+public final class JCommanderParser {
     @Parameter
     public static final int DEFAULT_TWEETS_LIMIT = 100;
 
@@ -64,5 +64,9 @@ public class JCommanderParser {
 
     public String getLocation() {
         return location;
+    }
+
+    public void setLocation(final String newLocation) {
+        location = newLocation;
     }
 } //Thread.sleep(10000) <- sleep

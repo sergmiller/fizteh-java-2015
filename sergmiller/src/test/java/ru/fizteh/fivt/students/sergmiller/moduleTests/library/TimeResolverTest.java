@@ -17,7 +17,6 @@ import java.util.List;
 
 public class TimeResolverTest extends TestCase {
     private List<LocalDateTime> testedDates = new ArrayList<>();
-
     @Before
     public void setUp() throws Exception {
         testedDates.add(LocalDateTime.of(2014, 9, 12, 10, 30, 10));
