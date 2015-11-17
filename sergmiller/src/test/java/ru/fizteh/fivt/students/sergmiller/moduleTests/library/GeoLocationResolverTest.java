@@ -1,26 +1,20 @@
-//package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
+package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
 import junit.framework.TestCase;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.GeoLocationResolver;
-
 import ru.fizteh.fivt.students.sergmiller.twitterStream.LocationData;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.exceptions.GettingMyLocationException;
 import twitter4j.GeoLocation;
 import twitter4j.TwitterStream;
-
 import java.io.InputStream;
-
-
 import java.net.URL;
-import java.time.LocalDate;
 
 /**
  * Created by sergmiller on 26.10.15.
@@ -31,10 +25,6 @@ import java.time.LocalDate;
 public class GeoLocationResolverTest extends TestCase {
     private URL dummyGeoDataURL;
     private URL dummyMyLocationURL;
-    private LocationData LondonLocation = new LocationData(
-            new GeoLocation(51.5073509, -0.1277583), 23.539304731202712, "London");
-    private LocationData DolgoprudnyyLocation = new LocationData(
-            new GeoLocation(55.947064, 37.4992755), 6.117792942260596, "Dolgoprudnyy");
     private final String URLIPinfoAdress = "http://ipinfo.io/json";
     private final String URLGoogleAPIAdress = "http://maps.googleapis.com/maps/api/geocode/json?address=";
     private final String DOLGOPRUDNYY = "Dolgoprudnyy";
@@ -60,17 +50,17 @@ public class GeoLocationResolverTest extends TestCase {
     @Test
     public void testResolveEmptyLocation() throws Exception {
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
+
         assertEquals(null, geoLocationResolver.resolveLocation(""));
     }
 
     @Test
     public void testGetNameOfCurrentLocation() throws Exception {
         InputStream inputStream = TwitterStream.class.getResourceAsStream("/DolgoprudnyyIPinfo.json");
-        //InputStream inputStream = new ByteArrayInputStream((org.apache.commons.io.IOUtils.toString(TwitterStream.class.getResourceAsStream("/DolgoprudnyyIPinfo.json"))).getBytes(StandardCharsets.UTF_8));
-        //DolgoprudnyyIPResponce = org.apache.commons.io.IOUtils.toString(inputStream);
         PowerMockito.when(dummyMyLocationURL.openStream()).thenReturn(inputStream);
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
         String location = geoLocationResolver.getNameOfCurrentLocation();
+
         assertEquals(DOLGOPRUDNYY, location);
     }
 
@@ -85,6 +75,7 @@ public class GeoLocationResolverTest extends TestCase {
         assertEquals(51.5073509, location.getGeoLocation().getLatitude());
         assertEquals(-0.1277583, location.getGeoLocation().getLongitude());
         assertEquals( 23.539304731202712, location.getRadius());
+        assertEquals("London", location.getName());
     }
 
     @Test(expected = JSONException.class)
@@ -98,9 +89,8 @@ public class GeoLocationResolverTest extends TestCase {
 
     @Test(expected = GettingMyLocationException.class)
     public void testGetNameOfCurrentLocationFailed() throws Exception {
-        InputStream inputStream = TwitterStream.class.getResourceAsStream("/Gallifrey.json");
-        //InputStream inputStream = new ByteArrayInputStream((org.apache.commons.io.IOUtils.toString(TwitterStream.class.getResourceAsStream("/DolgoprudnyyIPinfo.json"))).getBytes(StandardCharsets.UTF_8));
-        //DolgoprudnyyIPResponce = org.apache.commons.io.IOUtils.toString(inputStream);
+        InputStream inputStream =
+                TwitterStream.class.getResourceAsStream("/Gallifrey.json");
         PowerMockito.when(dummyMyLocationURL.openStream()).thenReturn(inputStream);
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
         geoLocationResolver.getNameOfCurrentLocation();
@@ -109,11 +99,10 @@ public class GeoLocationResolverTest extends TestCase {
     @Test
     public void testResolveLocationFailed() throws Exception {
         InputStream inputStream = TwitterStream.class.getResourceAsStream("/Gallifrey.json");
-        //InputStream inputStream = new ByteArrayInputStream((org.apache.commons.io.IOUtils.toString(TwitterStream.class.getResourceAsStream("/DolgoprudnyyIPinfo.json"))).getBytes(StandardCharsets.UTF_8));
-        //DolgoprudnyyIPResponce = org.apache.commons.io.IOUtils.toString(inputStream);
         PowerMockito.when(dummyMyLocationURL.openStream()).thenReturn(inputStream);
         GeoLocationResolver geoLocationResolver = new GeoLocationResolver();
         LocationData location = geoLocationResolver.resolveLocation("Gallifrey");
+
         assertEquals(null, location);
     }
 

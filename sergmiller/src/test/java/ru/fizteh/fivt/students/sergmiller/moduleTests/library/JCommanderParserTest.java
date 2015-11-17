@@ -1,4 +1,4 @@
-//package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
+package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
 /**
  * Created by sergmiller on 11.11.15.
@@ -7,24 +7,10 @@
 import com.beust.jcommander.JCommander;
 import junit.framework.TestCase;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.JCommanderParser;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
-import static org.mockito.AdditionalMatchers.or;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 public class JCommanderParserTest extends TestCase {

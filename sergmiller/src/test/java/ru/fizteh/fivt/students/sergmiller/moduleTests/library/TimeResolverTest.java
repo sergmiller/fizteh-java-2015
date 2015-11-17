@@ -1,14 +1,11 @@
-
+package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.TimeResolver;
-
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**

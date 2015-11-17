@@ -1,10 +1,8 @@
-//package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
+package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
 import junit.framework.TestCase;
 import org.junit.Test;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.DeclensionResolver;
-
-//import static ru.fizteh.fivt.students.sergmiller.twitterStream.DeclensionResolver.getDeclensionForm;
 
 /**
  * Created by sergmiller on 19.10.15.

@@ -1,19 +1,16 @@
+package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
+
 import com.beust.jcommander.JCommander;
 import junit.framework.TestCase;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import ru.fizteh.fivt.students.sergmiller.twitterStream.*;
-import sun.text.resources.cs.JavaTimeSupplementary_cs;
 import twitter4j.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -164,9 +161,5 @@ public class TwitterStreamTest extends TestCase{
         verify(dummyTwitterStream).sample();
 
         initWithArgs(false,"-s");
-
-       // PowerMockito.doThrow(new InterruptedException()).when(Thread.class).sleep(anyInt());
-       // PowerMockito.when(new Thread).sleep(1000).thenThrow(new InterruptedException());
-        // twitterStreamLauncher.getTwitterStream();
     }
 }

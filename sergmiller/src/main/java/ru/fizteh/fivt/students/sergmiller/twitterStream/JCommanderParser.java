@@ -9,7 +9,7 @@ import com.beust.jcommander.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class JCommanderParser {
+public class JCommanderParser {
     private LocationData geoLocation;
     @Parameter
     public static final int DEFAULT_TWEETS_LIMIT = 100;

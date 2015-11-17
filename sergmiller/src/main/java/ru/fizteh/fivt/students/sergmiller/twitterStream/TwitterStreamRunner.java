@@ -4,10 +4,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import twitter4j.TwitterFactory;
 import twitter4j.TwitterStreamFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Scanner;
 
@@ -88,7 +84,7 @@ public class TwitterStreamRunner {
         jCommanderSettings.usage();
     }
 
-    static void exitWithCtrlD() {
+    private static void exitWithCtrlD() {
         Scanner scan = new Scanner(System.in);
         try {
             while (scan.hasNext()) {
@@ -97,34 +93,6 @@ public class TwitterStreamRunner {
         } finally {
             scan.close();
             System.exit(0);
-        }
-    }
-
-
-    public static void write(String fileName, String text) {
-        //Определяем файл
-        File file = new File(fileName);
-
-        try {
-            //проверяем, что если файл не существует то создаем его
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            //PrintWriter обеспечит возможности записи в файл
-            PrintWriter out = new PrintWriter(file.getAbsoluteFile());
-
-            try {
-                //Записываем текст у файл
-                out.print(text);
-            } finally {
-                //После чего мы должны закрыть файл
-                //Иначе файл не запишется
-                out.close();
-            }
-        } catch (IOException e) {
-            e.getStackTrace();
-            //throw new RuntimeException(e);
         }
     }
 

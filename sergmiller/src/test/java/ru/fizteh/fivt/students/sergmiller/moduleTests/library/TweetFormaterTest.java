@@ -1,4 +1,4 @@
-//package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
+package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -21,19 +21,5 @@ public class TweetFormaterTest extends TestCase {
         assertEquals(tweetFormater.tweetsSeparator(), "\n----------------------------------------"
                 + "----------------------------------------");
     }
-//
-//    @Before
-//    public void preparationForTest() throws Exception {
-//        tweetExample = Twitter4jTestUtils.tweetsFromJson("/DoctorWhoTweet.json").get(0);
-//        //System.out.println(tweetExample.toString());
-//        //tweetExample =  Twitter4jTestUtils.tweetsFromJson("/DoctorWhoTweet.json");
-//    }
-///*
-//    @Test
-//    public void testPrintTweetInStreamMode() throws Exception {
-//        TweetPrinter tweetPrinter = new TweetPrinter();
-//        JCommanderParser jCommanderParser = new JCommanderParser();
-//        //tweetPrinter.printTweet(tweetExample);
-//    }*/
 }
 
