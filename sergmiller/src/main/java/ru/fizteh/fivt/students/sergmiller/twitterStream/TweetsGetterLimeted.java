@@ -95,7 +95,7 @@ public class TweetsGetterLimeted {
                             + "Попробуйте использовать "
                             + "более популярные ключевые слова.");
 
-                    List <String> report = new ArrayList<>();
+                    List<String> report = new ArrayList<>();
                     report.add(emptyAnswerMessage.toString());
                     return report;
                 } else {
