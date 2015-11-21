@@ -4,6 +4,8 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import twitter4j.TwitterFactory;
 import twitter4j.TwitterStreamFactory;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -30,7 +32,10 @@ public class TwitterStreamRunner {
             JCommanderParser jCommanderDefault = new JCommanderParser();
             JCommander jCommanderHelper = new JCommander(jCommanderDefault, new String[]{""});
             jCommanderHelper.setProgramName("TwitterStream");
-            printHelpMan(jCommanderHelper);
+            List<String> report = new ArrayList<String>();
+            report.add(printHelpMan(jCommanderHelper));
+            TweetPrinter tweetPrinter = new TweetPrinter(System.out);
+            tweetPrinter.printTweets(report);
             return;
         }
 
@@ -80,8 +85,10 @@ public class TwitterStreamRunner {
      *
      * @param jCommanderSettings is JC params
      */
-    public static void printHelpMan(final JCommander jCommanderSettings) {
-        jCommanderSettings.usage();
+    public static String printHelpMan(final JCommander jCommanderSettings) {
+        StringBuilder stringBuilder = new StringBuilder();
+        jCommanderSettings.usage(stringBuilder);
+        return stringBuilder.toString();
     }
 
     private static void exitWithCtrlD() {

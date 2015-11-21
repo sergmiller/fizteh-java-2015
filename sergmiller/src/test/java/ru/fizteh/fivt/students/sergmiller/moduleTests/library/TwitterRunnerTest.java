@@ -30,7 +30,7 @@ public class TwitterRunnerTest extends TestCase {
         args[2] = "--help";
         jCommanderWithUsage = PowerMockito.mock(JCommander.class);
         PowerMockito.whenNew(JCommander.class).withAnyArguments().thenReturn(jCommanderWithUsage);
-        doNothing().when(jCommanderWithUsage).usage();
+        doNothing().when(jCommanderWithUsage).usage(any(StringBuilder.class));
     }
 
     @Test
@@ -38,6 +38,6 @@ public class TwitterRunnerTest extends TestCase {
         TwitterStreamRunner twitterStreamRunner = new TwitterStreamRunner();
         twitterStreamRunner.main(args);
 
-        verify(jCommanderWithUsage).usage();
+        verify(jCommanderWithUsage).usage(any(StringBuilder.class));
     }
 }

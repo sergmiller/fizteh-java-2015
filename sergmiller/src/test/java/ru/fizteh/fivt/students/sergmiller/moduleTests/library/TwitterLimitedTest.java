@@ -160,14 +160,13 @@ public class TwitterLimitedTest extends TestCase{
         List<String> currentTweets = tweetsGetterLimeted.getTwitterLimited(
                 emptyQuery, twitter);
 
-        assertEquals(0, currentTweets.size());
+        assertEquals(1, currentTweets.size());
 
-        PowerMockito.verifyStatic();
-        TwitterStreamRunner.printIntoStdout("\nПо запросу empty ничего не найдено=(\n\n"
+        assertThat(currentTweets, hasItem("\nПо запросу empty ничего не найдено=(\n\n"
                 + "Рекомендации:\n\n"
                 + "Убедитесь, что все слова написаны без ошибок.\n"
                 + "Попробуйте использовать другие ключевые слова.\n"
-                + "Попробуйте использовать более популярные ключевые слова.");
+                + "Попробуйте использовать более популярные ключевые слова."));
     }
 
     @Test
@@ -180,14 +179,14 @@ public class TwitterLimitedTest extends TestCase{
         List<String> currentTweets = tweetsGetterLimeted.getTwitterLimited(
                 emptyQuery, twitter);
 
-        assertEquals(0, currentTweets.size());
+        assertEquals(1, currentTweets.size());
 
         PowerMockito.verifyStatic();
-        TwitterStreamRunner.printIntoStdout("\nПо запросу empty для World ничего не найдено=(\n\n"
+        assertThat(currentTweets,hasItem("\nПо запросу empty для World ничего не найдено=(\n\n"
                 + "Рекомендации:\n\n"
                 + "Убедитесь, что все слова написаны без ошибок.\n"
                 + "Попробуйте использовать другие ключевые слова.\n"
-                + "Попробуйте использовать более популярные ключевые слова.");
+                + "Попробуйте использовать более популярные ключевые слова."));
     }
 
     @Test
@@ -200,13 +199,13 @@ public class TwitterLimitedTest extends TestCase{
         List<String> currentTweets = tweetsGetterLimeted.getTwitterLimited(
                 emptyQuery, twitter);
 
-        assertEquals(0, currentTweets.size());
+        assertEquals(1, currentTweets.size());
 
         PowerMockito.verifyStatic();
-        TwitterStreamRunner.printIntoStdout("\nПо запросу empty для Dolgoprudnyy ничего не найдено=(\n\n"
+        assertThat(currentTweets,hasItem("\nПо запросу empty для Dolgoprudnyy ничего не найдено=(\n\n"
                 + "Рекомендации:\n\n"
                 + "Убедитесь, что все слова написаны без ошибок.\n"
                 + "Попробуйте использовать другие ключевые слова.\n"
-                + "Попробуйте использовать более популярные ключевые слова.");
+                + "Попробуйте использовать более популярные ключевые слова."));
     }
 }

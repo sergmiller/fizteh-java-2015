@@ -46,7 +46,7 @@ public final class TwitterStreamLauncher {
         }
     }
 
-    public  StatusAdapter getListener() {
+    public StatusAdapter getListener() {
         return new StatusAdapter() {
             @Override
             public void onStatus(Status status) {

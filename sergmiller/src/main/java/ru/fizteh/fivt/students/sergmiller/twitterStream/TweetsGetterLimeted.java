@@ -95,7 +95,9 @@ public class TweetsGetterLimeted {
                             + "Попробуйте использовать "
                             + "более популярные ключевые слова.");
 
-                    TwitterStreamRunner.printIntoStdout(emptyAnswerMessage.toString());
+                    List <String> report = new ArrayList<>();
+                    report.add(emptyAnswerMessage.toString());
+                    return report;
                 } else {
                     Collections.reverse(allTweets);
                 }
