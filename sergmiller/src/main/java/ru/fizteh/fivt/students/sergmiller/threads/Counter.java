@@ -5,42 +5,49 @@ package ru.fizteh.fivt.students.sergmiller.threads;
  */
 
 final class Counter {
-    static volatile int countLast = 0;
-    static volatile int totalNumber;
-    private static final Object monitor = new Object();
+    private Counter() {
+    }
+
+    private static volatile int countLast = 0;
+    private static volatile int totalNumber;
+
+    private static Object syncObj = new Object();
 
     private static void runner(final int myNumber) {
-        Thread thread = new Thread(new Runnable() {
+        Thread thread = new Thread() {
+            @SuppressWarnings("checkstyle.magicnumber")
             @Override
             public void run() {
                 try {
-                    synchronized (monitor) {
+                    synchronized (syncObj) {
                         while (true) {
                             if (myNumber == countLast) {
                                 System.out.print("Thread-" + myNumber + "\n");
                                 ++countLast;
                                 if (countLast == totalNumber) {
-                                    Thread.sleep(1000);//just for view
+
+                                    Thread.sleep(1000); //just for view
                                     countLast = 0;
                                 }
-                                monitor.notifyAll();
+                                syncObj.notifyAll();
                             } else {
-                                monitor.wait();
+                                syncObj.wait();
                             }
                         }
                     }
                 } catch (InterruptedException e) {
                 }
             }
-        });
+        };
 
         thread.start();
     }
 
-    public static void main(String arg[]) {
+    public static void main(final String[] arg) {
         totalNumber = new Integer(arg[0]);
         for (int i = 0; i < totalNumber; ++i) {
             runner(i);
         }
     }
 }
+
