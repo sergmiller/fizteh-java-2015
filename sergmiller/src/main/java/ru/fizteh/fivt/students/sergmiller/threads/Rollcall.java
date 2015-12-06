@@ -44,6 +44,7 @@ final class Rollcall {
                         }
                     }
                 } catch (InterruptedException e) {
+                    return;
                 }
             }
         };
@@ -72,12 +73,12 @@ final class Rollcall {
                                 }
                                 syncObj.notifyAll();
                             } else {
-                                syncObj.notify();
                                 syncObj.wait();
                             }
                         }
                     }
                 } catch (InterruptedException e) {
+                    return;
                 }
             }
         };
