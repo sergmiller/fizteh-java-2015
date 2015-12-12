@@ -59,8 +59,7 @@ public class BlockingQueue<T> {
             timerThread.start();
             offer(list);
             timerThread.interrupt();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -80,7 +79,7 @@ public class BlockingQueue<T> {
             //offerCounterAccessObj.notify();
         }
 
-        try{
+        try {
             synchronized (actionSyncObj) {
                 while (true) {
                     if (currentOfferCounter == orderNumber) {
@@ -176,7 +175,7 @@ public class BlockingQueue<T> {
                                     actionSyncObj.notifyAll();
                                     return answer;
                                 }
-                               // System.out.println("i'm here");
+                                // System.out.println("i'm here");
                                 actionSyncObj.notifyAll();
                             }
                         }
