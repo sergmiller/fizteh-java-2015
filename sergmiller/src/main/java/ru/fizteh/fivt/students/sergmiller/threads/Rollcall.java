@@ -10,14 +10,14 @@ final class Rollcall {
     }
 
     private static Random random = new Random();
-    private static volatile int counter = 0;
-    private static volatile int answers = 0;
-    private static volatile boolean exitFlag = false;
-    private static volatile int totalNumber;
+    private static int counter = 0;
+    private static int answers = 0;
+    private static boolean exitFlag = false;
+    private static int totalNumber;
 
     private static Object syncObj = new Object();
 
-    private static void runSlave() {
+    private static void startThread() {
         Thread thread = new Thread() {
             @SuppressWarnings("checkstyle.magicnumber")
             @Override
@@ -52,47 +52,35 @@ final class Rollcall {
         thread.start();
     }
 
-    private static void runMaster() {
-        Thread thread = new Thread() {
-            @SuppressWarnings("checkstyle.magicnumber")
-            @Override
-            public void run() {
-                try {
-                    synchronized (syncObj) {
-                        while (true) {
-                            if (counter == totalNumber) {
-                                if (answers < totalNumber) {
-                                    System.out.print("Are you ready?\n");
-                                    answers = 0;
-                                    counter = 0;
-                                    Thread.sleep(1000); //just for view
-                                } else {
-                                    exitFlag = true;
-                                    syncObj.notifyAll();
-                                    throw new InterruptedException("");
-                                }
-                                syncObj.notifyAll();
-                            } else {
-                                syncObj.wait();
-                            }
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    return;
-                }
-            }
-        };
-
-        thread.start();
-    }
-
-
     public static void main(final String[] arg) {
         totalNumber = new Integer(arg[0]);
         counter = totalNumber;
-        runMaster();
         for (int i = 0; i < totalNumber; ++i) {
-            runSlave();
+            startThread();
+        }
+
+        try {
+            synchronized (syncObj) {
+                while (true) {
+                    if (counter == totalNumber) {
+                        if (answers < totalNumber) {
+                            System.out.print("Are you ready?\n");
+                            answers = 0;
+                            counter = 0;
+                            Thread.sleep(1000); //just for view
+                        } else {
+                            exitFlag = true;
+                            syncObj.notifyAll();
+                            throw new InterruptedException("");
+                        }
+                        syncObj.notifyAll();
+                    } else {
+                        syncObj.wait();
+                    }
+                }
+            }
+        } catch (InterruptedException e) {
+            return;
         }
     }
 }

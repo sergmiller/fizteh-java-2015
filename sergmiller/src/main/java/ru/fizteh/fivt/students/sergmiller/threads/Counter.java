@@ -8,8 +8,8 @@ final class Counter {
     private Counter() {
     }
 
-    private static volatile int countLast = 0;
-    private static volatile int totalNumber;
+    private static int countLast = 0;
+    private static int totalNumber;
 
     private static Object syncObj = new Object();
 
