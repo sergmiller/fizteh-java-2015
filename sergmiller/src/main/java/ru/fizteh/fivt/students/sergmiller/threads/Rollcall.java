@@ -37,7 +37,7 @@ final class Rollcall {
                                     ++answers;
                                 }
                                 ++counter;
-                                syncObj.notify();
+                                syncObj.notifyAll();
                             }
 
                             syncObj.wait();
