@@ -70,9 +70,9 @@ public class BlockingQueue<T> {
                             //System.out.println("I'm ended");
                             throw new InterruptedException("");
                         }
-                        actionSyncObj.notifyAll();
                     }
                     //System.out.println("I'm wait");
+                    actionSyncObj.notifyAll();
                     if (existTimeLimit) {
                         timeToSleep = timeToStop - System.currentTimeMillis();
                         if (timeToSleep < 0) {
@@ -140,9 +140,9 @@ public class BlockingQueue<T> {
                             //System.out.println("I'm ended");
                             return answer;
                         }
-                        actionSyncObj.notifyAll();
                     }
                     //System.out.println("I'm wait");
+                    actionSyncObj.notifyAll();
                     if (existTimeLimit) {
                         timeToSleep = timeToStop - System.currentTimeMillis();
                         if (timeToSleep < 0) {
