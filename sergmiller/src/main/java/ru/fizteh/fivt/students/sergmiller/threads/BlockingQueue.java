@@ -11,8 +11,8 @@ public class BlockingQueue<T> {
     private Object takeCounterAccessObj = new Object();
     private Object queueAccessSyncObj = new Object();
     private Object actionSyncObj = new Object();
-    private volatile int maxQueueSize;
-    private volatile int queueSize;
+    private int maxQueueSize;
+    private int queueSize;
     private volatile long currentOfferCounter;
     private volatile long currentTakeCounter;
     private long offerCounter;
@@ -67,16 +67,19 @@ public class BlockingQueue<T> {
 
                             ++currentOfferCounter;
                             actionSyncObj.notifyAll();
+                            //System.out.println("I'm ended");
                             throw new InterruptedException("");
                         }
                         actionSyncObj.notifyAll();
                     }
+                    //System.out.println("I'm wait");
                     if (existTimeLimit) {
                         timeToSleep = timeToStop - System.currentTimeMillis();
                         if (timeToSleep < 0) {
                             ++currentOfferCounter;
                             actionSyncObj.notifyAll();
-                            return;
+                            //System.out.println("I'm suspended");
+                            throw new InterruptedException("");
                         }
                         actionSyncObj.wait(timeToSleep);
                     } else {
@@ -127,22 +130,25 @@ public class BlockingQueue<T> {
                         if (qnt <= queueSize) {
                             List answer;
                             synchronized (queueAccessSyncObj) {
-                                 answer = new LinkedList<>(queue.subList(0, qnt));
+                                answer = new LinkedList<>(queue.subList(0, qnt));
                                 queue.subList(0, qnt).clear();
                                 queueSize -= qnt;
                             }
 
                             ++currentTakeCounter;
                             actionSyncObj.notifyAll();
+                            //System.out.println("I'm ended");
                             return answer;
                         }
                         actionSyncObj.notifyAll();
                     }
+                    //System.out.println("I'm wait");
                     if (existTimeLimit) {
                         timeToSleep = timeToStop - System.currentTimeMillis();
                         if (timeToSleep < 0) {
                             ++currentTakeCounter;
                             actionSyncObj.notifyAll();
+                            //System.out.println("I'm suspended");
                             throw new InterruptedException("");
                         }
                         actionSyncObj.wait(timeToSleep);
