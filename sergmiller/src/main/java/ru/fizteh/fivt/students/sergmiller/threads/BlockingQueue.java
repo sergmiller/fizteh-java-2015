@@ -67,18 +67,15 @@ public class BlockingQueue<T> {
 
                             ++currentOfferCounter;
                             actionSyncObj.notifyAll();
-                            //System.out.println("I'm ended");
                             throw new InterruptedException("");
                         }
                     }
-                    //System.out.println("I'm wait");
                     actionSyncObj.notifyAll();
                     if (existTimeLimit) {
                         timeToSleep = timeToStop - System.currentTimeMillis();
-                        if (timeToSleep < 0) {
+                        if (timeToSleep <= 0) {
                             ++currentOfferCounter;
                             actionSyncObj.notifyAll();
-                            //System.out.println("I'm suspended");
                             throw new InterruptedException("");
                         }
                         actionSyncObj.wait(timeToSleep);
@@ -137,18 +134,15 @@ public class BlockingQueue<T> {
 
                             ++currentTakeCounter;
                             actionSyncObj.notifyAll();
-                            //System.out.println("I'm ended");
                             return answer;
                         }
                     }
-                    //System.out.println("I'm wait");
                     actionSyncObj.notifyAll();
                     if (existTimeLimit) {
                         timeToSleep = timeToStop - System.currentTimeMillis();
-                        if (timeToSleep < 0) {
+                        if (timeToSleep <= 0) {
                             ++currentTakeCounter;
                             actionSyncObj.notifyAll();
-                            //System.out.println("I'm suspended");
                             throw new InterruptedException("");
                         }
                         actionSyncObj.wait(timeToSleep);

@@ -114,21 +114,24 @@ public class BlockingQueueTest extends TestCase {
 
     @Test
     public void testThreadCommunication() throws Exception {
-        BlockingQueue queue = new BlockingQueue<Integer>(QUEUE_SIZE);
-        OfferThread thread1 = new OfferThread(queue, e1, 200);
-        OfferThread thread2 = new OfferThread(queue, e2, 200);
-        OfferThread thread3 = new OfferThread(queue, e3, 200);
-        OfferThread thread4 = new OfferThread(queue, e4, 200);
-        TakeThread thread5 = new TakeThread(queue, 1, 200);
-        TakeThread thread6 = new TakeThread(queue, 10, 200);
-        thread5.start();
-        thread1.start();
-        thread2.start();
-        thread3.start();
-        thread6.start();
-        thread4.start();
-        Thread.sleep(300);
-        assertNull(queue.take(1, 100));
+        int i = 5;
+        while(i-- > 0) {
+            BlockingQueue queue = new BlockingQueue<Integer>(QUEUE_SIZE);
+            OfferThread thread1 = new OfferThread(queue, e1, 200);
+            OfferThread thread2 = new OfferThread(queue, e2, 200);
+            OfferThread thread3 = new OfferThread(queue, e3, 200);
+            OfferThread thread4 = new OfferThread(queue, e4, 200);
+            TakeThread thread5 = new TakeThread(queue, 1, 200);
+            TakeThread thread6 = new TakeThread(queue, 10, 200);
+            thread5.start();
+            thread1.start();
+            thread2.start();
+            thread3.start();
+            thread6.start();
+            thread4.start();
+            Thread.sleep(300);
+            assertNull(queue.take(2, 100));
+        }
     }
 }
 
