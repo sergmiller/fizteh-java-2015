@@ -67,6 +67,18 @@ public class DatabaseServiceTests extends TestCase {
         assertEquals("User{name='Alice', age=19}", users.get(1).toString());
         assertEquals(2, users.size());
 
+        List<User> request = databaseService.queryById("Bob");
+
+        assertEquals(1, request.size());
+        assertEquals("User{name='Bob', age=21}", request.get(0).toString());
+
+        databaseService.delete("Bob");
+
+        users = databaseService.queryForAll();
+
+        assertEquals("User{name='Alice', age=19}", users.get(0).toString());
+        assertEquals(1, users.size());
+
         databaseService.dropTable();
         databaseService.createTable();
 
