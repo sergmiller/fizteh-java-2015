@@ -142,23 +142,25 @@ public class DatabaseService<T> {
         }
     }
 
-    public <T> void insert(T entity) throws SQLException, IllegalAccessException {
+    public <T> void insert(T entity) throws DatabaseServiceException {
         if (entity.getClass() != workingClass) {
-            System.err.println("wrong object");
-            return;
+            throw new DatabaseServiceException("wrong object");
         }
 
         List<String> columns = new ArrayList<>();
         List<Object> values = new ArrayList<>();
 
-
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Column column = field.getAnnotation(Column.class);
-            if (column != null) {
-                columns.add(column.name());
-                values.add(field.get(entity));
+        try {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Column column = field.getAnnotation(Column.class);
+                if (column != null) {
+                    columns.add(column.name());
+                    values.add(field.get(entity));
+                }
             }
+        }catch(IllegalAccessException e) {
+            throw new DatabaseServiceException(e.getMessage());
         }
 
         String columnsLine = columns.stream().collect(joining(", "));
@@ -179,16 +181,19 @@ public class DatabaseService<T> {
                 insertStatement.setObject(i + 1, values.get(i));
             }
             insertStatement.execute();
+        }catch(SQLException e) {
+            throw new DatabaseServiceException(e.getMessage());
         }
     }
 
     public <T, K> List<T> queryById(K key) throws DatabaseServiceException {
         try {
+            String name = fieldsNames.get(primaryKeyFieldId);
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("SELECT * FROM ")
                     .append(table)
                     .append(" WHERE ")
-                    .append(fieldsNames.get(primaryKeyFieldId))
+                    .append(name)
                     .append(" = ?");
             try (Connection connection = DriverManager.getConnection(DATABASE_COONECTION_PATH)) {
                 PreparedStatement statement = connection.prepareStatement(stringBuilder.toString());
@@ -201,20 +206,31 @@ public class DatabaseService<T> {
         }
     }
 
-    public <K> void delete(K key) throws DatabaseServiceException {
+    public <K> boolean delete(K key) throws DatabaseServiceException {
         try {
+            String name = fieldsNames.get(primaryKeyFieldId);
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("DELETE FROM ")
                     .append(table)
                     .append(" WHERE ")
-                    .append(fieldsNames.get(primaryKeyFieldId))
+                    .append(name)
                     .append(" = ?");
             try (Connection connection = DriverManager.getConnection(DATABASE_COONECTION_PATH)) {
                 PreparedStatement statement = connection.prepareStatement(stringBuilder.toString());
                 statement.setObject(1, key);
-                statement.execute();
+                return (statement.executeUpdate() > 0);
             }
         } catch (SQLException e) {
+            throw new DatabaseServiceException(e.getMessage());
+        }
+    }
+
+    public <T> void update(T entity) throws DatabaseServiceException{
+        try {
+            if (delete(fields[primaryKeyFieldId].get(entity))) {
+                insert(entity);
+            }
+        }catch(IllegalAccessException e) {
             throw new DatabaseServiceException(e.getMessage());
         }
     }

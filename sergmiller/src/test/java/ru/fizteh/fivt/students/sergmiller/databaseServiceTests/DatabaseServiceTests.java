@@ -61,8 +61,6 @@ public class DatabaseServiceTests extends TestCase {
 
         List<User> users = databaseService.queryForAll();
 
-        //assertEquals(user1, users.get(0));
-
         assertEquals("User{name='Bob', age=21}", users.get(0).toString());
         assertEquals("User{name='Alice', age=19}", users.get(1).toString());
         assertEquals(2, users.size());
@@ -78,6 +76,20 @@ public class DatabaseServiceTests extends TestCase {
 
         assertEquals("User{name='Alice', age=19}", users.get(0).toString());
         assertEquals(1, users.size());
+
+        databaseService.insert(user1);
+
+        User newUser1 = new User();
+        newUser1.setName("Bob");
+        newUser1.setAge(35);
+
+        databaseService.update(newUser1);
+
+        users = databaseService.queryForAll();
+
+        assertEquals("User{name='Alice', age=19}", users.get(0).toString());
+        assertEquals("User{name='Bob', age=35}", users.get(1).toString());
+        assertEquals(2, users.size());
 
         databaseService.dropTable();
         databaseService.createTable();
