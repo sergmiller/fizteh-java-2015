@@ -3,106 +3,126 @@ package ru.fizteh.fivt.students.sergmiller.databaseServiceTests;
 import junit.framework.TestCase;
 import org.junit.Test;
 import ru.fizteh.fivt.students.sergmiller.databaseService.DatabaseService;
+import ru.fizteh.fivt.students.sergmiller.databaseService.H2TypeResolver;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by sergmiller on 16.12.15.
  */
 public class DatabaseServiceTests extends TestCase {
-    @DatabaseService.Table(name = "users")
-    public static class User {
-        public User() {
+    @DatabaseService.Table
+    public static class SimpleStudent {
+        public SimpleStudent() {
         }
 
         ;
-        @DatabaseService.Column(name = "name")
+
+        public SimpleStudent(String newName, int newAge, Date newBirthDate) {
+            userName = newName;
+            userAge = newAge;
+            userDateOfBirth = newBirthDate;
+            dummy = 528491;
+        }
+
+        @DatabaseService.Column
         @DatabaseService.PrimaryKey
-        public String name;
+        public String userName;
 
-        @DatabaseService.Column(name = "age")
-        public int age;
+        @DatabaseService.Column
+        public int userAge;
 
-        public void setName(String name) {
-            this.name = name;
-        }
+        @DatabaseService.Column
+        public Date userDateOfBirth;
 
-        public void setAge(int age) {
-            this.age = age;
-        }
+        public int dummy;
 
         @Override
         public String toString() {
             return "User{" +
-                    "name='" + name + '\'' +
-                    ", age=" + age +
+                    "name='" + userName + "'" +
+                    ", age=" + userAge +
+                    ", birthday=" + userDateOfBirth.toString() +
                     '}';
         }
     }
 
     @Test
+    public void testCreation() throws Exception {
+        DatabaseService<SimpleStudent> service = new DatabaseService<>(SimpleStudent.class);
+        service.dropTable();
+        service.createTable();
+        service.dropTable();
+    }
+
+    @Test
+    public void testOperetions() throws Exception {
+
+        DatabaseService<SimpleStudent> service = new DatabaseService<>(SimpleStudent.class);
+        service.dropTable();
+        service.createTable();
+        service.insert(new SimpleStudent("Serg", 19, new Date(1345633237)));
+        service.insert(new SimpleStudent("Andrew", 18, new Date(1345332323)));
+        service.insert(new SimpleStudent("Daniel", 17, new Date(13323237)));
+        service.update(new SimpleStudent("Max", 20, new Date(144255427)));
+        service.delete("Max");
+        service.delete("Other");
+        service.delete("Andrew");
+
+        assertEquals(service.queryById("Andrew"), new LinkedList<>());
+        assertEquals(service.queryById(""), new LinkedList<>());
+        assertEquals("[User{name='Serg', age=19, birthday=1970-01-16},"
+                        + " User{name='Daniel', age=17, birthday=1970-01-01}]",
+                service.queryForAll().toString());
+
+        service.dropTable();
+
+    }
+
+    @Test
     public void testInitTable() throws Exception {
-        DatabaseService<User> databaseService = new DatabaseService(User.class);
+        DatabaseService<SimpleStudent> databaseService = new DatabaseService(SimpleStudent.class);
         databaseService.dropTable();
         databaseService.createTable();
-        User user1 = new User();
-        user1.setName("Bob");
-        user1.setAge(21);
+        databaseService.insert(new SimpleStudent("Bob", 21, new Date((1345633237))));
 
-        databaseService.insert(user1);
+        databaseService.insert(new SimpleStudent("Alice", 19, new Date(913456332)));
 
-        User user2 = new User();
-        user2.setName("Alice");
-        user2.setAge(19);
+        List<SimpleStudent> users = databaseService.queryForAll();
 
-        databaseService.insert(user2);
-
-        List<User> users = databaseService.queryForAll();
-
-        assertEquals("User{name='Bob', age=21}", users.get(0).toString());
-        assertEquals("User{name='Alice', age=19}", users.get(1).toString());
+        assertEquals("User{name='Bob', age=21, birthday=1970-01-16}", users.get(0).toString());
+        assertEquals("User{name='Alice', age=19, birthday=1970-01-11}", users.get(1).toString());
         assertEquals(2, users.size());
 
-        List<User> request = databaseService.queryById("Bob");
+        users = databaseService.queryById("Bob");
 
-        assertEquals(1, request.size());
-        assertEquals("User{name='Bob', age=21}", request.get(0).toString());
+        assertEquals(1, users.size());
+        assertEquals("User{name='Bob', age=21, birthday=1970-01-16}", users.get(0).toString());
 
         databaseService.delete("Bob");
 
         users = databaseService.queryForAll();
 
-        assertEquals("User{name='Alice', age=19}", users.get(0).toString());
+        assertEquals("User{name='Alice', age=19, birthday=1970-01-11}", users.get(0).toString());
         assertEquals(1, users.size());
 
-        databaseService.insert(user1);
+        databaseService.insert(new SimpleStudent("Bob", 15, new Date((1345633237))));
 
-        User newUser1 = new User();
-        newUser1.setName("Bob");
-        newUser1.setAge(35);
-
-        databaseService.update(newUser1);
+        databaseService.update(new SimpleStudent("Bob", 50, new Date((10000))));
 
         users = databaseService.queryForAll();
 
-        assertEquals("User{name='Alice', age=19}", users.get(0).toString());
-        assertEquals("User{name='Bob', age=35}", users.get(1).toString());
+        assertEquals("User{name='Alice', age=19, birthday=1970-01-11}", users.get(0).toString());
+        assertEquals("User{name='Bob', age=50, birthday=1970-01-01}", users.get(1).toString());
         assertEquals(2, users.size());
 
         databaseService.dropTable();
         databaseService.createTable();
 
-        User user3 = new User();
-        user3.setName("Serg");
-        user3.setAge(19);
-
-        databaseService.insert(user3);
-
+        databaseService.insert(new SimpleStudent("Serg", 19, new Date(1345633237)));
         users = databaseService.queryForAll();
 
-        assertEquals("User{name='Serg', age=19}", users.get(0).toString());
+        assertEquals("User{name='Serg', age=19, birthday=1970-01-16}", users.get(0).toString());
         assertEquals(1, users.size());
 
         databaseService.dropTable();

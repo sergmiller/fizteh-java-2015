@@ -40,9 +40,10 @@ public class H2TypeResolver {
     }
 
     public static String resolveType(Class<?> type) {
-        if (type.isArray()) {
-            return "ARRAY";
-        }
+//it's not work ¯\_(ツ)_/¯
+//        if (type.isArray()) {
+//            return "ARRAY";
+//        }
 
         if (type.isPrimitive()) {
             if (h2dbPrimeTypes.containsKey(type.toString())) {

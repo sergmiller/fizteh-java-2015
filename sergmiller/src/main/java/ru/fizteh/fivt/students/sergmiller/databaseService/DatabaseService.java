@@ -84,7 +84,7 @@ public class DatabaseService<T> {
             if (column == null) {
                 fieldsNames.add(null);
             } else {
-                if (column.name().length() > 0) {
+                if (column.name().length() == 0) {
                     fieldsNames.add(getSnakeCase(field.getName()));
                 } else {
                     fieldsNames.add(column.name());
@@ -98,7 +98,7 @@ public class DatabaseService<T> {
         for (int i = 0; i < s.length(); ++i) {
             sSnakeCase.append(s.charAt(i));
             if (i < s.length() - 1 && Character.isUpperCase(s.charAt(i + 1))) {
-                sSnakeCase.append(" ");
+                sSnakeCase.append("_");
             }
         }
         return sSnakeCase.toString().toLowerCase();
@@ -119,18 +119,15 @@ public class DatabaseService<T> {
 
     public void createTable() throws SQLException {
         StringBuilder headBuilder = new StringBuilder();
-        int i = 0;
-        for (Field field : fields) {
-            if (i == 0) {
-                ++i;
-            } else {
+        for (int i = 0; i < fields.length; ++i) {
+            if (i != 0) {
                 headBuilder.append(", ");
             }
-            Column column = field.getAnnotation(Column.class);
-            if (column != null) {
-                headBuilder.append(column.name()).append(" ")
-                        .append(H2TypeResolver.resolveType(field.getType()));
-                if (field.isAnnotationPresent(PrimaryKey.class)) {
+            String name = fieldsNames.get(i);
+            if (name != null) {
+                headBuilder.append(name).append(" ")
+                        .append(H2TypeResolver.resolveType(fields[i].getType()));
+                if (i == primaryKeyFieldId) {
                     headBuilder.append(" NOT NULL PRIMARY KEY");
                 }
             }
@@ -151,12 +148,12 @@ public class DatabaseService<T> {
         List<Object> values = new ArrayList<>();
 
         try {
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Column column = field.getAnnotation(Column.class);
-                if (column != null) {
-                    columns.add(column.name());
-                    values.add(field.get(entity));
+            for (int i = 0; i < fields.length; ++i) {
+                fields[i].setAccessible(true);
+                String name = fieldsNames.get(i);
+                if (name != null) {
+                    columns.add(name);
+                    values.add(fields[i].get(entity));
                 }
             }
         } catch (IllegalAccessException e) {
@@ -249,9 +246,11 @@ public class DatabaseService<T> {
         }
     }
 
-    public void dropTable() throws SQLException {
+    public void dropTable() throws DatabaseServiceException {
         try (Connection connection = DriverManager.getConnection(DATABASE_COONECTION_PATH)) {
             connection.createStatement().execute("DROP TABLE IF EXISTS " + table);
+        } catch (SQLException e) {
+            throw new DatabaseServiceException(e.getMessage());
         }
     }
 
@@ -260,13 +259,14 @@ public class DatabaseService<T> {
             List<T> answer = new LinkedList<>();
             while (rs.next()) {
                 T record = (T) workingClass.newInstance();
-                for (Field field : fields) {
-                    //field.setAccessible(true);
-                    Column column = field.getAnnotation(Column.class);
-                    if (column == null) {
+                for (int i = 0; i < fields.length; ++i) {
+                    fields[i].setAccessible(true);
+                    String name = fieldsNames.get(i);
+
+                    if (name == null) {
                         continue;
                     }
-                    field.set(record, rs.getObject(column.name()));
+                    fields[i].set(record, rs.getObject(name));
                 }
                 answer.add(record);
             }
