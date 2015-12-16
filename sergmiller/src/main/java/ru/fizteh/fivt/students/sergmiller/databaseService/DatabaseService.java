@@ -159,7 +159,7 @@ public class DatabaseService<T> {
                     values.add(field.get(entity));
                 }
             }
-        }catch(IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new DatabaseServiceException(e.getMessage());
         }
 
@@ -181,7 +181,7 @@ public class DatabaseService<T> {
                 insertStatement.setObject(i + 1, values.get(i));
             }
             insertStatement.execute();
-        }catch(SQLException e) {
+        } catch (SQLException e) {
             throw new DatabaseServiceException(e.getMessage());
         }
     }
@@ -225,12 +225,12 @@ public class DatabaseService<T> {
         }
     }
 
-    public <T> void update(T entity) throws DatabaseServiceException{
+    public <T> void update(T entity) throws DatabaseServiceException {
         try {
             if (delete(fields[primaryKeyFieldId].get(entity))) {
                 insert(entity);
             }
-        }catch(IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new DatabaseServiceException(e.getMessage());
         }
     }
