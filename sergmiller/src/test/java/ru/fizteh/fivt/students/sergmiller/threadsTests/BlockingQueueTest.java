@@ -6,8 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.students.sergmiller.threads.BlockingQueue;
 
-import java.lang.reflect.Array;
-import java.time.LocalDateTime;
+
 import java.util.*;
 
 import static java.util.Arrays.*;
@@ -80,7 +79,7 @@ public class BlockingQueueTest extends TestCase {
     }
 
     @Test
-    public void testSingleThreadWork() {
+    public void testSingleThreadWork() throws Exception{
         BlockingQueue queue = new BlockingQueue<Integer>(QUEUE_SIZE);
         queue.offer(e1);
         queue.offer(e2);
