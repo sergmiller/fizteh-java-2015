@@ -79,7 +79,7 @@ public class BlockingQueueTest extends TestCase {
     }
 
     @Test
-    public void testSingleThreadWork() throws Exception{
+    public void testSingleThreadWork() throws Exception {
         BlockingQueue queue = new BlockingQueue<Integer>(QUEUE_SIZE);
         queue.offer(e1);
         queue.offer(e2);
@@ -114,7 +114,7 @@ public class BlockingQueueTest extends TestCase {
     @Test
     public void testThreadCommunication() throws Exception {
         int i = 5;
-        while(i-- > 0) {
+        while (i-- > 0) {
             BlockingQueue queue = new BlockingQueue<Integer>(QUEUE_SIZE);
             OfferThread thread1 = new OfferThread(queue, e1, 200);
             OfferThread thread2 = new OfferThread(queue, e2, 200);
@@ -129,7 +129,7 @@ public class BlockingQueueTest extends TestCase {
             thread6.start();
             thread4.start();
             Thread.sleep(300);
-            assertNull(queue.take(2, 100));
+            assertNull(queue.take(12, 100));
         }
     }
 }
