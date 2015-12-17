@@ -1,4 +1,4 @@
-//package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
+package ru.fizteh.fivt.students.sergmiller.moduleTests.library;
 
 import com.beust.jcommander.JCommander;
 

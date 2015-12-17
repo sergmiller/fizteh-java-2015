@@ -3,16 +3,14 @@ package ru.fizteh.fivt.students.sergmiller.collectionQLTests;
 
 import junit.framework.TestCase;
 import org.junit.Test;
-import ru.fizteh.fivt.students.sergmiller.collectionquery.impl.Tuple;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.Aggregates.avg;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.Aggregates.count;
-import static ru.fizteh.fivt.students.sergmiller.collectionQLTests.CollectionQueryTests.Student.student;
+import static ru.fizteh.fivt.students.sergmiller.collectionQLTests.CollectionQueryTest.Student.student;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.Conditions.rlike;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.OrderByConditions.asc;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.OrderByConditions.desc;
@@ -25,7 +23,7 @@ import static ru.fizteh.fivt.students.sergmiller.collectionquery.impl.FromStmt.f
  */
 
 
-public class CollectionQueryTests extends TestCase {
+public class CollectionQueryTest extends TestCase {
     public static class Student {
         private final String name;
 

@@ -3,14 +3,13 @@ package ru.fizteh.fivt.students.sergmiller.databaseServiceTests;
 import junit.framework.TestCase;
 import org.junit.Test;
 import ru.fizteh.fivt.students.sergmiller.databaseService.DatabaseService;
-import ru.fizteh.fivt.students.sergmiller.databaseService.H2TypeResolver;
 
 import java.util.*;
 
 /**
  * Created by sergmiller on 16.12.15.
  */
-public class DatabaseServiceTests extends TestCase {
+public class DatabaseServiceTest extends TestCase {
     @DatabaseService.Table
     public static class SimpleStudent {
         public SimpleStudent() {

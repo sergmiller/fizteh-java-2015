@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * Created by sergmiller on 17.12.15.
  */
-public class H2TypeResloverTests extends TestCase {
+public class H2TypeResloverTest extends TestCase {
     public class MyTestClass {
     }
 
@@ -25,7 +25,7 @@ public class H2TypeResloverTests extends TestCase {
     public void testPrimitives() {
         assertEquals(H2TypeResolver.resolveType(long.class), "BIGINT");
         assertEquals(H2TypeResolver.resolveType(double.class), "DOUBLE");
-        assertEquals(H2TypeResolver.resolveType(char.class), "CHAR");
+        assertEquals(H2TypeResolver.resolveType(short.class), "INTEGER");
     }
 
     @Test
