@@ -58,7 +58,7 @@ public class BlockingQueue<T> {
                 while (true) {
                     if (currentOfferCounter == orderNumber) {
                         if (list.size() + queueSize <= maxQueueSize) {
-                            synchronized (queueAccessSyncObj) {
+                            synchronized (actionSyncObj) {
                                 queue.addAll(list);
                                 queueSize += list.size();
                             }
@@ -124,7 +124,7 @@ public class BlockingQueue<T> {
                     if (currentTakeCounter == orderNumber) {
                         if (qnt <= queueSize) {
                             List answer;
-                            synchronized (queueAccessSyncObj) {
+                            synchronized (actionSyncObj) {
                                 answer = new LinkedList<>(queue.subList(0, qnt));
                                 queue.subList(0, qnt).clear();
                                 queueSize -= qnt;
