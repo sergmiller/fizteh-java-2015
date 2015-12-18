@@ -115,6 +115,52 @@ public class SelectStmt<T, R> implements Query<R> {
         return this;
     }
 
+    private List<R> applyDistinct(List<R> execRes) {
+        if (isDistinct) {
+            execRes = execRes.stream().distinct().collect(Collectors.toList());
+        }
+        return execRes;
+    }
+
+    private List<R> applyHaving(List<R> execRes) {
+        if (havingRestriction != null) {
+            List<R> filtredData = execRes.stream()
+                    .filter(havingRestriction::test)
+                    .collect(Collectors.toList());
+            execRes = filtredData;
+        }
+        return execRes;
+    }
+
+    private List<R> applyOrderBy(List<R> execRes) {
+        if (orderByComparators != null) {
+            execRes.sort(bestComparatorEver);
+        }
+        return execRes;
+    }
+
+    private List<R> applyLimit(List<R> execRes) {
+        if (maxRawsNeeded != -1) {
+            if (maxRawsNeeded < execRes.size()) {
+                execRes = execRes.subList(0, maxRawsNeeded);
+            }
+        }
+        return execRes;
+    }
+
+    private List<R> applyUnion(List<R> execRes) {
+        if (uParent != null) {
+            final Iterable<R> subQuery = uParent.getsParent().execute();
+            List fullExecResult = new LinkedList<>();
+            subQuery.forEach(o -> fullExecResult.add(o));
+            fullExecResult.addAll(execRes);
+            return fullExecResult;
+        }
+
+        return execRes;
+    }
+
+
     @Override
     public Iterable<R> execute() throws NoSuchElementException {
         try {
@@ -162,8 +208,6 @@ public class SelectStmt<T, R> implements Query<R> {
                         ++counter;
                     }
 
-//                    R newElement = (R) toReturn.getConstructor(returnClasses).newInstance(arguments);
-//                    executeResult.add(newElement);
                     if (isJoin) {
                         Tuple newElement = new Tuple(arguments[0], arguments[1]);
                         executeResult.add((R) newElement);
@@ -188,8 +232,6 @@ public class SelectStmt<T, R> implements Query<R> {
                         ++counter;
                     }
 
-//                    R newElement = (R) toReturn.getConstructor(returnClasses).newInstance(arguments);
-//                    executeResult.add(newElement);
 
                     if (isJoin) {
                         Tuple newElement = new Tuple(arguments[0], arguments[1]);
@@ -202,38 +244,13 @@ public class SelectStmt<T, R> implements Query<R> {
 
             }
 
-            if (havingRestriction != null) {
-                List<R> filtredData = executeResult.stream()
-                        .filter(havingRestriction::test)
-                        .collect(Collectors.toList());
-                executeResult = filtredData;
-            }
+            return  applyUnion(
+                        applyDistinct(
+                                applyHaving(
+                                        applyLimit(
+                                                applyOrderBy(
+                                                        executeResult)))));
 
-            if (isDistinct) {
-                executeResult = executeResult.stream().distinct().collect(Collectors.toList());
-            }
-
-            if (orderByComparators != null) {
-                executeResult.sort(bestComparatorEver);
-            }
-
-            if (maxRawsNeeded != -1) {
-                if (maxRawsNeeded < executeResult.size()) {
-                    executeResult = executeResult.subList(0, maxRawsNeeded);
-                }
-            }
-
-            List linkedExecResult = new LinkedList<>(executeResult);
-
-            if (uParent != null) {
-                final Iterable<R> subQuery = uParent.getsParent().execute();
-                List fullExecResult = new LinkedList<>();
-                subQuery.forEach(o -> fullExecResult.add(o));
-                fullExecResult.addAll(executeResult);
-                return fullExecResult;
-            }
-
-            return linkedExecResult;
         } catch (NoSuchMethodException | IllegalAccessException
                 | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();

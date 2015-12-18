@@ -156,6 +156,8 @@ public class CollectionQueryBaseTest extends TestCase {
         assertEquals("[Statistics{group='494', count=2, age=29.0},"
                 + " Statistics{group='all', count=1, age=30.0}]", statistics.toString());
 
+       // [Statistics{group=all,count=1,avg=30},Statistics{group=494,count=1,avg=29},Statistics{group=495,count=1,avg=29}
+
         Iterable<Tuple<String, String>> mentorsByStudent =
                 from(list(student("ivanov", LocalDate.parse("1985-08-06"), "494")))
                         .join(list(new Group("494", "mr.sidorov")))
