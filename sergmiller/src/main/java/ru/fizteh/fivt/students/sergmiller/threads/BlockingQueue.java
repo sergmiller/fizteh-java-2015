@@ -7,8 +7,6 @@ import java.util.*;
  */
 
 public class BlockingQueue<T> {
-    private Object offerCounterAccessObj = new Object();
-    private Object takeCounterAccessObj = new Object();
     private Object queueAccessSyncObj = new Object();
     private Object actionSyncObj = new Object();
     private int maxQueueSize;
@@ -48,7 +46,7 @@ public class BlockingQueue<T> {
         }
         long orderNumber;
 
-        synchronized (offerCounterAccessObj) {
+        synchronized (actionSyncObj) {
             orderNumber = offerCounter++;
             if (offerCounter == Long.MAX_VALUE) {
                 offerCounter = 0;
@@ -113,7 +111,7 @@ public class BlockingQueue<T> {
 
         long orderNumber;
 
-        synchronized (takeCounterAccessObj) {
+        synchronized (actionSyncObj) {
             orderNumber = takeCounter++;
             if (takeCounter == Long.MAX_VALUE) {
                 takeCounter = 0;
