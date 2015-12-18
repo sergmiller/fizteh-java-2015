@@ -56,6 +56,28 @@ public class CollectionQueryBaseTest extends TestCase {
         public static Student student(String name, LocalDate dateOfBith, String group) {
             return new Student(name, dateOfBith, group);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Student)) {
+                return false;
+            }
+
+            if (o == null) {
+                return false;
+            }
+
+            return this.toString().equals(o.toString());
+        }
+
+        @Override
+        public String toString() {
+            return "Student{"
+                    + "name='" + name + "'"
+                    + ", dateOfBith=" + dateOfBith
+                    + ", group=" + group
+                    + '}';
+        }
     }
 
     public static class Group {
