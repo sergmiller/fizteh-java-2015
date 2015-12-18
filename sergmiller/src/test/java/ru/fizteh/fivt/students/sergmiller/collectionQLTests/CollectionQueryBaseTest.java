@@ -3,10 +3,12 @@ package ru.fizteh.fivt.students.sergmiller.collectionQLTests;
 
 import junit.framework.TestCase;
 import org.junit.Test;
+import ru.fizteh.fivt.students.sergmiller.collectionquery.impl.Tuple;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.Aggregates.avg;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.Aggregates.count;
@@ -154,13 +156,20 @@ public class CollectionQueryBaseTest extends TestCase {
         assertEquals("[Statistics{group='494', count=2, age=29.0},"
                 + " Statistics{group='all', count=1, age=30.0}]", statistics.toString());
 
-//        Iterable<Tuple<String, String>> mentorsByStudent =
-//                from(list(student("ivanov", LocalDate.parse("1985-08-06"), "494")))
-//                        .join(list(new Group("494", "mr.sidorov")))
-//                        .on((s, g) -> Objects.equals(s.getGroup(), g.getGroup()))
-//                        .select(sg -> sg.getFirst().getName(), sg -> sg.getSecond().getMentor())
-//                        .execute();
-//        System.out.println(mentorsByStudent);
+        Iterable<Tuple<String, String>> mentorsByStudent =
+                from(list(student("ivanov", LocalDate.parse("1985-08-06"), "494")))
+                        .join(list(new Group("494", "mr.sidorov")))
+                        .on((s, g) -> Objects.equals(s.getGroup(), g.getGroup()))
+                        .select(sg -> sg.getFirst().getName(), sg -> sg.getSecond().getMentor())
+                        .execute();
+        Iterable<Tuple<String, String>> mentorsByStudent2 =
+                from(list(student("ivanov", LocalDate.parse("1985-08-06"), "494")))
+                        .join(list(new Group("494", "mr.sidorov")))
+                        .on(s -> s.getGroup(), g -> g.getGroup())
+                        .select(sg -> sg.getFirst().getName(), sg -> sg.getSecond().getMentor())
+                        .execute();
+        assertEquals(mentorsByStudent.toString(), "[Tuple{first=ivanov, second=mr.sidorov}]");
+        assertEquals(mentorsByStudent2.toString(), "[Tuple{first=ivanov, second=mr.sidorov}]");
     }
 
 

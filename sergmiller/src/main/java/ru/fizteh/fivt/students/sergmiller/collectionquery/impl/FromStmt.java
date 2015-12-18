@@ -10,8 +10,8 @@ import java.util.stream.Stream;
  */
 public class FromStmt<T> {
     private List<T> data = new ArrayList<>();
-    private UnionStmt uParent;
-    private JoinClause jParent;
+    private UnionStmt<?> uParent;
+    private JoinClause<?, ?> joinInside;
     private Query<T> query;
 
     public List<T> getData() {
@@ -22,49 +22,56 @@ public class FromStmt<T> {
         return uParent;
     }
 
-    public JoinClause getJparent() {
-        return jParent;
+    public JoinClause getJoinInside() {
+        return joinInside;
     }
 
-    public FromStmt(Iterable<T> iterable, UnionStmt uParent, JoinClause jParent) {
-        iterable.forEach(o -> data.add(o));
-        this.query = null;
-        this.uParent = uParent;
-        this.jParent = jParent;
+    public Query<T> getQuery() {
+        return query;
     }
 
-    public FromStmt(Stream<T> stream, UnionStmt uParent, JoinClause jParent) {
-        stream.forEach(o -> data.add(o));
-        this.query = null;
-        this.uParent = uParent;
-        this.jParent = jParent;
+    public FromStmt(Iterable<T> iterable) {
+        iterable.forEach(e -> data.add(e));
     }
 
-    public FromStmt(Query<T> query, UnionStmt uParent, JoinClause jParent) {
-        this.data = null;
-        this.query = query;
-        this.uParent = uParent;
-        this.jParent = jParent;
+    public FromStmt(Stream<T> stream) {
+        stream.forEach(e -> data.add(e));
     }
 
-    public FromStmt(JoinClause joinClause) {
-        this.data = joinClause.getFromStmt().data;
-        this.query = joinClause.getFromStmt().query;
-        this.uParent = joinClause.getFromStmt().uParent;
-        this.jParent = joinClause;
+    public FromStmt(Query rcvQuery) {
+        this.query = rcvQuery;
     }
 
+    public <R> FromStmt(JoinClause<?, ?> clause, UnionStmt<?> rcvParentUnion) {
+        this.joinInside = clause;
+        this.uParent = rcvParentUnion;
+    }
+
+    public <R> FromStmt(Iterable<T> iterable, UnionStmt<?> rcvParentUnion) {
+        this.uParent = rcvParentUnion;
+        iterable.forEach(e -> data.add(e));
+    }
+
+    public <R> FromStmt(Stream<T> stream, UnionStmt<?> rcvParentUnion) {
+        this.uParent = rcvParentUnion;
+        stream.forEach(e -> data.add(e));
+    }
+
+    public <R> FromStmt(Query rcvQuery, UnionStmt<?> rcvParentUnion) {
+        this.uParent = rcvParentUnion;
+        this.query = rcvQuery;
+    }
 
     public static <T> FromStmt<T> from(Iterable<T> iterable) {
-        return new FromStmt<T>(iterable, null, null);
+        return new FromStmt<T>(iterable);
     }
 
     public static <T> FromStmt<T> from(Stream<T> stream) {
-        return new FromStmt<T>(stream, null, null);
+        return new FromStmt<T>(stream);
     }
 
     public static <T> FromStmt<T> from(Query query) {
-        return new FromStmt<T>(query, null, null);
+        return new FromStmt<T>(query);
 
     }
 
@@ -81,39 +88,34 @@ public class FromStmt<T> {
 
     @SafeVarargs
     public final <R> SelectStmt<T, R> select(Class<R> clazz, Function<T, ?>... s) {
-        return new SelectStmt<>(data, clazz, false, uParent, jParent, s);
+        return new SelectStmt<>(data, query, clazz, false, (UnionStmt<R>) uParent, s);
     }
 
     public final <F, S> SelectStmt<T, Tuple<F, S>> select(Function<T, F> first, Function<T, S> second) {
-        return new SelectStmt(data, false, uParent, jParent, first, second);
+        return new SelectStmt<T, Tuple<F, S>>(joinInside, uParent, first, second);
+    }
+
+
+    public final <R> SelectStmt<T, R> selectDistinct(Function<T, R> f) {
+        return new SelectStmt<>(data, query, null, true, uParent, f);
     }
 
     @SafeVarargs
-    public final <T, R> SelectStmt<T, R> selectDistinct(Class<R> clazz, Function<T, ?>... s) {
-        return new SelectStmt(data, clazz, true, uParent, jParent, s);
+    public final <R> SelectStmt<T, R> selectDistinct(Class<R> clazz, Function<T, ?>... f) {
+        return new SelectStmt<>(data, query, clazz, true, uParent, f);
     }
 
-    /**
-     * Selects the only defined expression as is without wrapper.
-     *
-     * @param s
-     * @param <R>
-     * @return statement resulting in collection of R
-     */
-    public final <R> SelectStmt<T, R> selectDistinct(Function<T, R> s) {
-        throw new UnsupportedOperationException();
-    }
 
     public <J> JoinClause<T, J> join(Iterable<J> iterable) {
-        return new JoinClause<>(this, iterable);
+        return new JoinClause<>(uParent, data, query, iterable);
     }
 
     public <J> JoinClause<T, J> join(Stream<J> stream) {
-        return new JoinClause<>(this, stream);
+        return new JoinClause<>(uParent, data, query, stream);
     }
 
-    public <J> JoinClause<T, J> join(Query<J> query) {
-        return new JoinClause<>(this, query);
+    public <J> JoinClause<T, J> join(Query<J> sdQuery) {
+        return new JoinClause<>(uParent, data, query, sdQuery);
     }
 
 }

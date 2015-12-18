@@ -25,14 +25,20 @@ public class SelectStmt<T, R> implements Query<R> {
     private Comparator<R>[] orderByComparators;
     private BestComparatorEver<R> bestComparatorEver;
     private List<R> oldData;
+    private Query<T> query;
     private List<T> currentData;
     private Stream<R> toStream;
     private UnionStmt uParent;
     private JoinClause jParent;
 
     @SafeVarargs
-    public SelectStmt(List<T> elements, Class<R> returnClass,
-                      boolean isDistinct, UnionStmt uParent, JoinClause jParent, Function<T, ?>... functions) {
+    public SelectStmt(List<T> elements,
+                      Query<T> query,
+                      Class<R> returnClass,
+                      boolean isDistinct,
+                      UnionStmt<?> uParent,
+                      Function<T, ?>... functions) {
+        this.query = query;
         this.oldData = new ArrayList<>();
         this.currentData = elements;
         this.toReturn = returnClass;
@@ -42,21 +48,18 @@ public class SelectStmt<T, R> implements Query<R> {
         this.isUnion = false;
         this.isJoin = false;
         this.uParent = uParent;
-        this.jParent = jParent;
     }
 
-    public SelectStmt(List<T> elements, boolean isDistinct, UnionStmt uParent, JoinClause jParent,
-                      Function<T, ?> first, Function<T, ?> second) {
+    public SelectStmt(JoinClause<?, ?> rcvJoinClause,
+                      UnionStmt<?> rcvParentUnion, Function<T, ?>... rcvFunctions) {
         this.oldData = new ArrayList<>();
-        this.currentData = elements;
-        this.toReturn = elements.get(0).getClass();
-        this.isDistinct = isDistinct;
-        this.currentFunctions = new Function[]{first, second};
+        this.currentData = null;
+        this.jParent = rcvJoinClause;
+        this.uParent = rcvParentUnion;
+        this.currentFunctions = rcvFunctions;
         this.maxRawsNeeded = -1;
         this.isUnion = false;
         this.isJoin = true;
-        this.uParent = uParent;
-        this.jParent = jParent;
     }
 
     @SafeVarargs
@@ -76,7 +79,7 @@ public class SelectStmt<T, R> implements Query<R> {
 
 
     public SelectStmt(List<R> pastElements, List<T> elements, boolean isDistinct,
-                      UnionStmt uParent, Function<T, ?> first, Function<T, ?> second) {
+                      UnionStmt uParent, JoinClause jParent, Function<T, ?> first, Function<T, ?> second) {
         this.currentData = elements;
         this.toReturn = elements.get(0).getClass();
         this.isDistinct = isDistinct;
@@ -86,6 +89,7 @@ public class SelectStmt<T, R> implements Query<R> {
         this.isJoin = true;
         this.oldData = pastElements;
         this.uParent = uParent;
+        this.jParent = jParent;
     }
 
     public Class getToReturn() {
@@ -114,7 +118,11 @@ public class SelectStmt<T, R> implements Query<R> {
     @Override
     public Iterable<R> execute() throws NoSuchElementException {
         try {
-            List<R> executeResult = new ArrayList<>();
+            List<R> executeResult = new LinkedList<>();
+            if (jParent != null) {
+                currentData = (List<T>) jParent.execute();
+            }
+
             Class[] returnClasses = new Class[currentFunctions.length];
             Object[] arguments = new Object[currentFunctions.length];
             if (whereRestriction != null) {
@@ -153,6 +161,9 @@ public class SelectStmt<T, R> implements Query<R> {
                         returnClasses[counter] = arguments[counter].getClass();
                         ++counter;
                     }
+
+//                    R newElement = (R) toReturn.getConstructor(returnClasses).newInstance(arguments);
+//                    executeResult.add(newElement);
                     if (isJoin) {
                         Tuple newElement = new Tuple(arguments[0], arguments[1]);
                         executeResult.add((R) newElement);
@@ -176,6 +187,10 @@ public class SelectStmt<T, R> implements Query<R> {
                         returnClasses[counter] = arguments[counter].getClass();
                         ++counter;
                     }
+
+//                    R newElement = (R) toReturn.getConstructor(returnClasses).newInstance(arguments);
+//                    executeResult.add(newElement);
+
                     if (isJoin) {
                         Tuple newElement = new Tuple(arguments[0], arguments[1]);
                         executeResult.add((R) newElement);
@@ -253,9 +268,9 @@ public class SelectStmt<T, R> implements Query<R> {
         return this;
     }
 
-    public final UnionStmt<T, R> union() throws NoSuchMethodException, IllegalAccessException,
+    public final UnionStmt<R> union() throws NoSuchMethodException, IllegalAccessException,
             InstantiationException, InvocationTargetException {
-        return new UnionStmt(this);
+        return new UnionStmt<>(this);
     }
 }
 
