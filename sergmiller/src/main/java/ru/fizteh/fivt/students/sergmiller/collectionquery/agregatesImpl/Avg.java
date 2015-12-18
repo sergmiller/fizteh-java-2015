@@ -20,11 +20,20 @@ public class Avg<T> implements Aggregator<T, Double> {
             return res;
         }
 
+        long countNotNull = 0;
+
         for (T e : list) {
-            res += apply(e);
+            if (thisFunction.apply(e) != null) {
+                res += apply(e);
+                ++countNotNull;
+            }
         }
 
-        return res / list.size();
+        if (countNotNull == 0) {
+            return res;
+        }
+
+        return res / countNotNull;
     }
 
     @Override

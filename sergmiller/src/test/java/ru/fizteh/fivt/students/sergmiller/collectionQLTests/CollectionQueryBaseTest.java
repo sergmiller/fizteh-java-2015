@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.Aggregates.avg;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.Aggregates.count;
-import static ru.fizteh.fivt.students.sergmiller.collectionQLTests.CollectionQueryTest.Student.student;
+import static ru.fizteh.fivt.students.sergmiller.collectionQLTests.CollectionQueryBaseTest.Student.student;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.Conditions.rlike;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.OrderByConditions.asc;
 import static ru.fizteh.fivt.students.sergmiller.collectionquery.OrderByConditions.desc;
@@ -23,7 +23,7 @@ import static ru.fizteh.fivt.students.sergmiller.collectionquery.impl.FromStmt.f
  */
 
 
-public class CollectionQueryTest extends TestCase {
+public class CollectionQueryBaseTest extends TestCase {
     public static class Student {
         private final String name;
 
