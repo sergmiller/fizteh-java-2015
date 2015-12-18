@@ -28,10 +28,11 @@ public class SelectStmt<T, R> implements Query<R> {
     private List<T> currentData;
     private Stream<R> toStream;
     private UnionStmt uParent;
+    private JoinClause jParent;
 
     @SafeVarargs
     public SelectStmt(List<T> elements, Class<R> returnClass,
-                      boolean isDistinct, UnionStmt uParent, Function<T, ?>... functions) {
+                      boolean isDistinct, UnionStmt uParent, JoinClause jParent, Function<T, ?>... functions) {
         this.oldData = new ArrayList<>();
         this.currentData = elements;
         this.toReturn = returnClass;
@@ -41,9 +42,10 @@ public class SelectStmt<T, R> implements Query<R> {
         this.isUnion = false;
         this.isJoin = false;
         this.uParent = uParent;
+        this.jParent = jParent;
     }
 
-    public SelectStmt(List<T> elements, boolean isDistinct, UnionStmt uParent,
+    public SelectStmt(List<T> elements, boolean isDistinct, UnionStmt uParent, JoinClause jParent,
                       Function<T, ?> first, Function<T, ?> second) {
         this.oldData = new ArrayList<>();
         this.currentData = elements;
@@ -54,11 +56,12 @@ public class SelectStmt<T, R> implements Query<R> {
         this.isUnion = false;
         this.isJoin = true;
         this.uParent = uParent;
+        this.jParent = jParent;
     }
 
     @SafeVarargs
     public SelectStmt(List<R> pastElements, List<T> elements, Class<R> returnClass, boolean isDistinct,
-                      UnionStmt uParent, Function<T, ?>... functions) {
+                      UnionStmt uParent, JoinClause jParent, Function<T, ?>... functions) {
         this.oldData = pastElements;
         this.currentData = elements;
         this.toReturn = returnClass;
@@ -68,6 +71,7 @@ public class SelectStmt<T, R> implements Query<R> {
         this.isUnion = false;
         this.isJoin = true;
         this.uParent = uParent;
+        this.jParent = jParent;
     }
 
 
@@ -204,15 +208,17 @@ public class SelectStmt<T, R> implements Query<R> {
                 }
             }
 
+            List linkedExecResult = new LinkedList<>(executeResult);
+
             if (uParent != null) {
                 final Iterable<R> subQuery = uParent.getsParent().execute();
-                List addedData = new ArrayList<>();
-                subQuery.forEach(o -> addedData.add(o));
-                addedData.addAll(executeResult);
-                executeResult = addedData;
+                List fullExecResult = new LinkedList<>();
+                subQuery.forEach(o -> fullExecResult.add(o));
+                fullExecResult.addAll(executeResult);
+                return fullExecResult;
             }
 
-            return executeResult;
+            return linkedExecResult;
         } catch (NoSuchMethodException | IllegalAccessException
                 | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();

@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 public class FromStmt<T> {
     private List<T> data = new ArrayList<>();
     private UnionStmt uParent;
+    private JoinClause jParent;
+    private Query<T> query;
 
     public List<T> getData() {
         return data;
@@ -20,62 +22,75 @@ public class FromStmt<T> {
         return uParent;
     }
 
-    public FromStmt(Iterable<T> iterable, UnionStmt uParent) {
-        iterable.forEach(o -> data.add(o));
-        this.uParent = uParent;
-
+    public JoinClause getJparent() {
+        return jParent;
     }
 
-    public FromStmt(Stream<T> stream, UnionStmt uParent) {
-        stream.forEach(o -> data.add(o));
+    public FromStmt(Iterable<T> iterable, UnionStmt uParent, JoinClause jParent) {
+        iterable.forEach(o -> data.add(o));
+        this.query = null;
         this.uParent = uParent;
+        this.jParent = jParent;
+    }
+
+    public FromStmt(Stream<T> stream, UnionStmt uParent, JoinClause jParent) {
+        stream.forEach(o -> data.add(o));
+        this.query = null;
+        this.uParent = uParent;
+        this.jParent = jParent;
+    }
+
+    public FromStmt(Query<T> query, UnionStmt uParent, JoinClause jParent) {
+        this.data = null;
+        this.query = query;
+        this.uParent = uParent;
+        this.jParent = jParent;
+    }
+
+    public FromStmt(JoinClause joinClause) {
+        this.data = joinClause.getFromStmt().data;
+        this.query = joinClause.getFromStmt().query;
+        this.uParent = joinClause.getFromStmt().uParent;
+        this.jParent = joinClause;
     }
 
 
     public static <T> FromStmt<T> from(Iterable<T> iterable) {
-        return new FromStmt<T>(iterable, null);
+        return new FromStmt<T>(iterable, null, null);
     }
 
     public static <T> FromStmt<T> from(Stream<T> stream) {
-        return new FromStmt<T>(stream, null);
+        return new FromStmt<T>(stream, null, null);
     }
 
     public static <T> FromStmt<T> from(Query query) {
-        throw new UnsupportedOperationException();
-    }
+        return new FromStmt<T>(query, null, null);
 
-    @SafeVarargs
-    public final <R> SelectStmt<T, R> select(Class<R> clazz, Function<T, ?>... s) {
-        return new SelectStmt<>(data, clazz, false, uParent, s);
-    }
-
-    /**
-     * Selects the only defined expression as is without wrapper.
-     *
-     * @param s
-     * @param <R>
-     * @return statement resulting in collection of R
-     */
-    public final <R> SelectStmt<T, R> select(Function<T, R> s) {
-        throw new UnsupportedOperationException();
     }
 
 //    /**
 //     * Selects the only defined expression as is without wrapper.
 //     *
-//     * @param first
-//     * @param second
-//     * @param <F>
-//     * @param <S>
+//     * @param s
+//     * @param <R>
 //     * @return statement resulting in collection of R
 //     */
-//    public final <F, S> SelectStmt<T, Tuple<F, S>> select(Function<T, F> first, Function<T, S> second) {
-//        return new SelectStmt(data, false, uParent, first, second);
+//    public final <R> SelectStmt<T, R> select(Function<T, R> s) {
+//        throw new UnsupportedOperationException();
 //    }
 
     @SafeVarargs
+    public final <R> SelectStmt<T, R> select(Class<R> clazz, Function<T, ?>... s) {
+        return new SelectStmt<>(data, clazz, false, uParent, jParent, s);
+    }
+
+    public final <F, S> SelectStmt<T, Tuple<F, S>> select(Function<T, F> first, Function<T, S> second) {
+        return new SelectStmt(data, false, uParent, jParent, first, second);
+    }
+
+    @SafeVarargs
     public final <T, R> SelectStmt<T, R> selectDistinct(Class<R> clazz, Function<T, ?>... s) {
-        return new SelectStmt(data, clazz, true, uParent, s);
+        return new SelectStmt(data, clazz, true, uParent, jParent, s);
     }
 
     /**
@@ -89,37 +104,18 @@ public class FromStmt<T> {
         throw new UnsupportedOperationException();
     }
 
-//    public <J> JoinClause<T, J> join(Iterable<J> iterable) {
-//        return new JoinClause<>(data, iterable);
-//    }
-//
-//
-//    public class JoinClause<T, J> {
-//        private List<T> firstElements = new ArrayList<>();
-//        private List<J> secondElements = new ArrayList<>();
-//        private List<Tuple<T, J>> joinedElements = new ArrayList<>();
-//
-//        public JoinClause(List<T> firstElements, Iterable<J> secondElements) {
-//            this.firstElements
-//                    .addAll(firstElements.stream()
-//                            .collect(Collectors.toList()));
-//            secondElements.forEach(o -> this.secondElements.add(o));
-//        }
-//
-//        public FromStmt<Tuple<T, J>> on(BiPredicate<T, J> condition) {
-//            firstElements.forEach(first ->
-//                    secondElements.forEach(second -> {
-//                        if (condition.test(first, second)) {
-//                            this.joinedElements.add(new Tuple<>(first, second));
-//                        }
-//                    }));
-//            return new FromStmt<T>(joinedElements, );
-//        }
-//
-//        public <K extends Comparable<?>> FromStmt<Tuple<T, J>> on(
-//                Function<T, K> leftKey,
-//                Function<J, K> rightKey) {
-//            throw new UnsupportedOperationException();
-//        }
-//    }
+    public <J> JoinClause<T, J> join(Iterable<J> iterable) {
+        return new JoinClause<>(this, iterable);
+    }
+
+    public <J> JoinClause<T, J> join(Stream<J> stream) {
+        return new JoinClause<>(this, stream);
+    }
+
+    public <J> JoinClause<T, J> join(Query<J> query) {
+        return new JoinClause<>(this, query);
+    }
+
 }
+
+

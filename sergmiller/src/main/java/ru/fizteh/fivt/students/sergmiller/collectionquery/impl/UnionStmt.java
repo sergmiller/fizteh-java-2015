@@ -23,11 +23,11 @@ public class UnionStmt<T, R> {
     }
 
     public <T> FromStmt<T> from(Iterable<T> iterable) {
-        return new FromStmt<T>(iterable, this);
+        return new FromStmt<T>(iterable, this, null);
     }
 
     public <T> FromStmt<T> from(Stream<T> stream) {
-        return new FromStmt<T>(stream, this);
+        return new FromStmt<T>(stream, this, null);
     }
 }
 
