@@ -6,12 +6,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import ru.fizteh.fivt.students.sergmiller.collectionquery.Aggregates;
 import ru.fizteh.fivt.students.sergmiller.collectionquery.agregatesImpl.Aggregator;
 
 import static ru.fizteh.fivt.students.sergmiller.collectionQLTests.CollectionQueryBaseTest.Student;
+import static ru.fizteh.fivt.students.sergmiller.collectionQLTests.CollectionQueryBaseTest.Student.student;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,7 +21,6 @@ import java.util.function.Function;
 
 //some copy-paste tests
 @SuppressWarnings("unchecked")
-@RunWith(MockitoJUnitRunner.class)
 public class AggregatesTest extends TestCase {
 
     private List<CollectionQueryBaseTest.Student> correct, emptylist;
@@ -38,9 +36,9 @@ public class AggregatesTest extends TestCase {
     public void setUp() throws Exception {
         correct = new ArrayList<>();
         emptylist = new ArrayList<>();
-        correct.add(new Student("miller", LocalDate.parse("1996-10-25"), "494"));
-        correct.add(new Student("ivanov", LocalDate.parse("1997-01-01"), "495"));
-        correct.add(new Student("zotov", LocalDate.parse("1997-03-18"), "496"));
+        correct.add(student("miller", LocalDate.parse("1996-10-25"), "494"));
+        correct.add(student("ivanov", LocalDate.parse("1997-01-01"), "495"));
+        correct.add(student("zotov", LocalDate.parse("1997-03-18"), "496"));
         functionAge = Student::age;
         functionName = Student::getName;
         functionGroup = Student::getGroup;
