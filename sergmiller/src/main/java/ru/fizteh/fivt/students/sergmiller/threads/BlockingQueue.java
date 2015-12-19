@@ -7,9 +7,6 @@ import java.util.*;
  */
 
 public class BlockingQueue<T> {
-    private Object offerCounterAccessObj = new Object();
-    private Object takeCounterAccessObj = new Object();
-    private Object queueAccessSyncObj = new Object();
     private Object actionSyncObj = new Object();
     private int maxQueueSize;
     private int queueSize;
@@ -48,7 +45,7 @@ public class BlockingQueue<T> {
         }
         long orderNumber;
 
-        synchronized (offerCounterAccessObj) {
+        synchronized (actionSyncObj) {
             orderNumber = offerCounter++;
             if (offerCounter == Long.MAX_VALUE) {
                 offerCounter = 0;
@@ -60,7 +57,7 @@ public class BlockingQueue<T> {
                 while (true) {
                     if (currentOfferCounter == orderNumber) {
                         if (list.size() + queueSize <= maxQueueSize) {
-                            synchronized (queueAccessSyncObj) {
+                            synchronized (actionSyncObj) {
                                 queue.addAll(list);
                                 queueSize += list.size();
                             }
@@ -113,7 +110,7 @@ public class BlockingQueue<T> {
 
         long orderNumber;
 
-        synchronized (takeCounterAccessObj) {
+        synchronized (actionSyncObj) {
             orderNumber = takeCounter++;
             if (takeCounter == Long.MAX_VALUE) {
                 takeCounter = 0;
@@ -126,7 +123,7 @@ public class BlockingQueue<T> {
                     if (currentTakeCounter == orderNumber) {
                         if (qnt <= queueSize) {
                             List answer;
-                            synchronized (queueAccessSyncObj) {
+                            synchronized (actionSyncObj) {
                                 answer = new LinkedList<>(queue.subList(0, qnt));
                                 queue.subList(0, qnt).clear();
                                 queueSize -= qnt;
